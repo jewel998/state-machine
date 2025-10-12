@@ -1,0 +1,103 @@
+{
+  "name": "@jewel998/state-machine",
+  "version": "0.0.1",
+  "description": "A lightweight, type-safe state machine library for JavaScript/TypeScript inspired by Java StateMachine patterns. Provides declarative state management with support for transitions, guards, actions, and hierarchical states.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jewel998/state-machine.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jewel998/state-machine/issues"
+  },
+  "homepage": "https://github.com/jewel998/state-machine#readme",
+  "scripts": {
+    "build": "npm run clean && npm run build:esbuild && npm run build:types",
+    "build:prod": "npm run clean && npm run build:esbuild:prod && npm run build:types",
+    "build:esbuild": "node esbuild.config.js",
+    "build:esbuild:prod": "NODE_ENV=production node esbuild.config.js",
+    "build:types": "tsc --project tsconfig.declarations.json --outDir dist && tsc --project tsconfig.build.json --outDir dist",
+    "build:tsc": "rm -rf dist && tsc",
+    "clean": "rm -rf dist coverage",
+    "build:watch": "tsx watch src/index.ts",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint \"src/**/*.ts\" --cache",
+    "lint:fix": "eslint \"src/**/*.ts\" --fix",
+    "format": "prettier --write \"src/**/*.{ts,js,json,md}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,js,json,md}\"",
+    "type-check": "tsc --noEmit",
+    "validate": "npm run type-check && npm run lint && npm run format:check && npm test",
+    "prepare": "husky install",
+    "prepublishOnly": "npm run validate && npm run build",
+    "version:patch": "npm version patch",
+    "version:minor": "npm version minor",
+    "version:major": "npm version major",
+    "release:patch": "npm run version:patch && git push --follow-tags",
+    "release:minor": "npm run version:minor && git push --follow-tags",
+    "release:major": "npm run version:major && git push --follow-tags",
+    "perf": "tsx --tsconfig scripts/tsconfig.json scripts/performance-test.ts",
+    "perf:quick": "tsx --tsconfig scripts/tsconfig.json scripts/performance-test.ts --quick",
+    "perf:full": "tsx --tsconfig scripts/tsconfig.json scripts/performance-test.ts --full",
+    "perf:server": "tsx --tsconfig scripts/tsconfig.json scripts/performance-test.ts --server-scale",
+    "perf:memory": "tsx --tsconfig scripts/tsconfig.json scripts/performance-test.ts --memory-only",
+    "perf:concurrent": "tsx --tsconfig scripts/tsconfig.json scripts/performance-test.ts --full",
+    "setup": "./scripts/setup.sh",
+    "test:all": "./scripts/test-all.sh",
+    "ci": "./scripts/ci.sh",
+    "dev": "./scripts/dev.sh"
+  },
+  "keywords": [
+    "state-machine",
+    "fsm",
+    "workflow",
+    "typescript",
+    "javascript",
+    "state-management",
+    "transitions"
+  ],
+  "author": "jewel998",
+  "license": "Apache-2.0",
+  "packageManager": "pnpm@10.18.2",
+  "devDependencies": {
+    "@commitlint/cli": "^18.4.3",
+    "@commitlint/config-conventional": "^18.4.3",
+    "@types/jest": "^29.5.8",
+    "@types/node": "^20.9.0",
+    "@typescript-eslint/eslint-plugin": "^6.12.0",
+    "@typescript-eslint/parser": "^6.12.0",
+    "esbuild": "^0.25.10",
+    "eslint": "^8.54.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-import": "^2.29.0",
+    "eslint-plugin-jest": "^27.6.0",
+    "eslint-plugin-prettier": "^5.0.1",
+    "husky": "^8.0.3",
+    "jest": "^29.7.0",
+    "lint-staged": "^15.1.0",
+    "prettier": "^3.1.0",
+    "rimraf": "^5.0.5",
+    "ts-jest": "^29.1.1",
+    "tsx": "^4.6.2",
+    "typescript": "^5.3.2"
+  },
+  "lint-staged": {
+    "*.{ts,js}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

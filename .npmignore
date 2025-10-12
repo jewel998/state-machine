@@ -1,0 +1,75 @@
+# Source files
+src/
+test/
+tests/
+__tests__/
+spec/
+specs/
+
+# Performance testing (not for production)
+scripts/performance-test.js
+scripts/performance-test.ts
+performance-results/
+src/performance/
+
+# Development files
+.eslintrc*
+.prettierrc*
+tsconfig.json
+tsconfig.build.json
+jest.config.js
+jest.setup.js
+esbuild.config.js
+rollup.config.js
+webpack.config.js
+.babelrc*
+.editorconfig
+commitlint.config.js
+
+# Documentation
+docs/
+examples/
+*.md
+!README.md
+
+# CI/CD
+.github/
+.travis.yml
+.circleci/
+appveyor.yml
+.gitlab-ci.yml
+
+# Development dependencies
+node_modules/
+coverage/
+.nyc_output/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Runtime
+.env*
+!.env.example
+
+# Build artifacts
+build/
+lib/
+
+# Testing
+coverage/
+.nyc_output/
+
+# Temporary
+tmp/
+temp/

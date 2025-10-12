@@ -1,0 +1,21 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": "../src",
+    "paths": {
+      "@/*": ["./*"],
+      "@/core/*": ["./core/*"],
+      "@/interfaces/*": ["./interfaces/*"],
+      "@/patterns/*": ["./patterns/*"],
+      "@/validation/*": ["./validation/*"],
+      "@/utils/*": ["./utils/*"],
+      "@/statistics/*": ["./statistics/*"],
+      "@/history/*": ["./history/*"],
+      "@/observers/*": ["./observers/*"],
+      "@/performance/*": ["./performance/*"],
+      "@/errors": ["./errors"],
+      "@/logger": ["./logger"]
+    }
+  },
+  "include": ["./**/*.ts", "../src/**/*.ts"]
+}
