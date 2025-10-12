@@ -73,3 +73,5 @@ coverage/
 # Temporary
 tmp/
 temp/
+
+.npmrc
