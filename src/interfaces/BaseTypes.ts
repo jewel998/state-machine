@@ -16,8 +16,18 @@ export type ContextConstraint = Record<string, unknown>;
 // Function type definitions for better type safety
 export type GuardFunction<TContext extends ContextConstraint> = (
   context: TContext
-) => boolean;
+) => boolean | Promise<boolean>;
 
 export type ActionFunction<TContext extends ContextConstraint> = (
   context: TContext
-) => void;
+) => void | Promise<void>;
+
+// Async transaction support
+export type TransactionFunction<TContext extends ContextConstraint> = (
+  context: TContext
+) => Promise<void>;
+
+export type RollbackFunction<TContext extends ContextConstraint> = (
+  context: TContext,
+  error: Error
+) => Promise<void>;

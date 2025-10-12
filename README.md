@@ -10,11 +10,13 @@ handling, and server-scale performance testing.
 - 🔒 **Type Safety** - Full TypeScript support with strict type checking
 - 🏗️ **Builder Pattern** - Fluent API with method chaining
 - ⚡ **Production Ready** - Optimized bundle (~45KB) with tree-shaking support
-- 🛡️ **Guard Conditions** - Conditional transition logic
-- 📝 **Actions** - State entry, exit, and transition actions
-- 🚨 **Error Handling** - Comprehensive error types with automatic rollback
+- 🛡️ **Guard Conditions** - Conditional transition logic (sync & async)
+- 📝 **Actions** - State entry, exit, and transition actions (sync & async)
+- 🔄 **Async Transactions** - Database transactions with automatic rollback
+- 🚨 **Error Handling** - Comprehensive error types with rollback support
 - 🔍 **Observability** - Built-in statistics, history, and event tracking
-- 🚀 **Performance** - Server-scale tested (millions of operations)
+- 🚀 **Performance** - Stateless definitions for zero per-object overhead
+- 🏭 **Scalable** - Efficient pattern for millions of objects
 - 🧪 **Testing** - Comprehensive test suite
 
 ## Installation
@@ -36,59 +38,115 @@ yarn add @jewel998/state-machine
 ```javascript
 import { StateMachine } from '@jewel998/state-machine';
 
-// Define a simple order processing state machine
-const orderMachine = StateMachine.builder()
+// 1. Create ONE shared definition (zero per-object overhead)
+const orderWorkflow = StateMachine.definitionBuilder()
   .initialState('PENDING')
   .state('PENDING')
   .state('APPROVED')
-  .state('REJECTED')
   .state('SHIPPED')
   .transition('PENDING', 'APPROVED', 'approve')
-  .transition('PENDING', 'REJECTED', 'reject')
   .transition('APPROVED', 'SHIPPED', 'ship')
-  .build();
+  .buildDefinition();
 
-// Use the state machine
-orderMachine.start();
-console.log(orderMachine.getCurrentState()); // 'PENDING'
+// 2. Objects just track their state
+class Order {
+  constructor(id) {
+    this.id = id;
+    this.state = 'PENDING'; // Just the state value - no machine instance!
+  }
 
-orderMachine.sendEvent('approve');
-console.log(orderMachine.getCurrentState()); // 'APPROVED'
+  processEvent(event) {
+    const result = orderWorkflow.processEvent(this.state, event, this);
+    if (result.success) {
+      this.state = result.newState;
+    }
+    return result.success;
+  }
+}
 
-orderMachine.sendEvent('ship');
-console.log(orderMachine.getCurrentState()); // 'SHIPPED'
+// 3. Scale to millions with shared definition
+const orders = Array.from({ length: 1000000 }, (_, i) => new Order(`ORD-${i}`));
+orders.forEach((order) => order.processEvent('approve'));
+console.log('Processed 1M orders with ONE shared definition!');
 ```
 
 ## Advanced Usage
 
-### With Guards and Actions
+### Async Transactions with Database Rollback
 
 ```javascript
-const machine = StateMachine.builder()
+const orderWorkflow = StateMachine.definitionBuilder()
+  .initialState('DRAFT')
+  .state('DRAFT')
+  .state('INVENTORY_RESERVED')
+  .state('PAYMENT_PROCESSED')
+  .state('CONFIRMED')
+
+  // Reserve inventory with automatic rollback on failure
+  .transition('DRAFT', 'INVENTORY_RESERVED', 'reserve_inventory')
+  .transaction(
+    async (context) => {
+      await database.reserveInventory(context.orderId, context.quantity);
+      await database.updateOrderStatus(context.orderId, 'RESERVED');
+    },
+    async (context, error) => {
+      // Automatic rollback on any failure
+      await database.rollbackInventory(context.orderId, context.quantity);
+    }
+  )
+
+  // Process payment with rollback
+  .transition('INVENTORY_RESERVED', 'PAYMENT_PROCESSED', 'process_payment')
+  .transaction(
+    async (context) => {
+      await paymentService.charge(context.orderId, context.amount);
+    },
+    async (context, error) => {
+      // Rollback both payment and inventory
+      await paymentService.refund(context.orderId, context.amount);
+      await database.rollbackInventory(context.orderId, context.quantity);
+    }
+  )
+
+  .buildDefinition();
+
+// Use async processing
+class Order {
+  async processEvent(event) {
+    const result = await orderWorkflow.processEventAsync(this.state, event, this);
+    if (result.success) {
+      this.state = result.newState;
+    } else if (result.rollbackExecuted) {
+      console.log('Transaction rolled back automatically');
+    }
+    return result.success;
+  }
+}
+```
+
+### Guards and Actions (Sync & Async)
+
+```javascript
+const workflow = StateMachine.definitionBuilder()
   .initialState('IDLE')
-  .state('IDLE')
   .state('PROCESSING')
   .state('COMPLETED')
-  .state('ERROR')
 
   .transition('IDLE', 'PROCESSING', 'start')
-  .guard((context) => context.hasPermission)
-  .action((context) => console.log('Starting process...'))
-
-  .transition('PROCESSING', 'COMPLETED', 'finish')
-  .action((context) => context.cleanup())
-
-  .transition('PROCESSING', 'ERROR', 'error')
-
-  .onStateEntry('PROCESSING', (context) => {
-    context.startTimer();
+  .guard(async (context) => {
+    // Async guard - check permissions from database
+    return await permissionService.hasAccess(context.userId);
+  })
+  .action(async (context) => {
+    // Async action
+    await auditService.log('Processing started', context);
   })
 
-  .onStateExit('PROCESSING', (context) => {
-    context.stopTimer();
+  .onStateEntry('PROCESSING', async (context) => {
+    await context.startTimer();
   })
 
-  .build();
+  .buildDefinition();
 ```
 
 ### TypeScript Support
@@ -116,32 +174,52 @@ const orderMachine = StateMachine.builder<OrderContext, OrderState, OrderEvent>(
   .build();
 ```
 
+## Examples
+
+Check out the comprehensive examples in the `examples/` directory:
+
+- **`stateless-pattern.js`** - Efficient stateless pattern with 1M objects
+- **`async-transactions.js`** - Database transactions with automatic rollbacks
+- **`advanced-features.js`** - Complex workflows with guards and actions
+
+```bash
+# Run the stateless pattern demo
+node examples/stateless-pattern.js
+
+# Run async transaction demo
+node examples/async-transactions.js
+
+# Run advanced features demo
+node examples/advanced-features.js
+```
+
 ## API Reference
 
-### StateMachine.builder()
+### StateMachine.definitionBuilder()
 
-Creates a new state machine builder instance.
+Creates a new stateless definition builder instance.
 
 ### Builder Methods
 
 - `.initialState(state)` - Set the initial state
 - `.state(state)` - Define a state
 - `.transition(from, to, event)` - Define a transition
-- `.guard(condition)` - Add guard condition to last transition
-- `.action(callback)` - Add action to last transition
+- `.guard(condition)` - Add guard condition (sync or async)
+- `.action(callback)` - Add action (sync or async)
+- `.transaction(callback, rollback)` - Add async transaction with rollback
 - `.onStateEntry(state, callback)` - Add state entry action
 - `.onStateExit(state, callback)` - Add state exit action
-- `.build()` - Create the state machine instance
+- `.buildDefinition()` - Create the stateless definition
 
-### State Machine Methods
+### Definition Methods
 
-- `.start()` - Start the state machine
-- `.sendEvent(event, context?)` - Send an event to trigger transitions (returns boolean)
-- `.sendEventStrict(event, context?)` - Send an event with strict error handling (throws on failure)
-- `.getCurrentState()` - Get current state
-- `.canTransition(event, context?)` - Check if transition is possible
-- `.getAvailableEvents()` - Get available events from current state
-- `.reset()` - Reset to initial state
+- `.processEvent(currentState, event, context)` - Process event synchronously
+- `.processEventAsync(currentState, event, context)` - Process event asynchronously
+- `.canTransition(currentState, event, context)` - Check if transition is possible
+- `.canTransitionAsync(currentState, event, context)` - Check transition asynchronously
+- `.getAvailableEvents(currentState, context?)` - Get available events for state
+- `.getInitialState()` - Get the initial state
+- `.getAllStates()` - Get all defined states
 
 ### Error Handling
 
@@ -187,7 +265,7 @@ npm run setup
 # Run tests
 npm test
 
-# Run performance tests
+# Run stateless performance tests
 npm run perf:quick
 
 # Development workflow
@@ -198,6 +276,8 @@ npm run dev help
 
 - `npm run setup` - Complete development setup
 - `npm run test:all` - Comprehensive test suite
+- `npm run perf:quick` - Quick stateless performance tests
+- `npm run perf:server` - Server-scale performance tests (millions of ops)
 - `npm run ci` - CI/CD pipeline simulation
 - `npm run dev <command>` - Development workflow automation
 

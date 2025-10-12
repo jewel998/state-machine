@@ -1,7 +1,7 @@
 {
   "name": "@jewel998/state-machine",
-  "version": "0.0.3",
-  "description": "A lightweight, type-safe state machine library for JavaScript/TypeScript inspired by Java StateMachine patterns. Provides declarative state management with support for transitions, guards, actions, and hierarchical states.",
+  "version": "0.0.4",
+  "description": "A lightweight, type-safe stateless state machine library for JavaScript/TypeScript. Zero per-object overhead, async transactions with database rollbacks, scales to millions of objects efficiently.",
   "main": "index.js",
   "types": "index.d.ts",
   "module": "index.mjs",
@@ -61,7 +61,7 @@
     "perf:full": "tsx --tsconfig scripts/tsconfig.json scripts/performance-test.ts --full",
     "perf:server": "tsx --tsconfig scripts/tsconfig.json scripts/performance-test.ts --server-scale",
     "perf:memory": "tsx --tsconfig scripts/tsconfig.json scripts/performance-test.ts --memory-only",
-    "perf:concurrent": "tsx --tsconfig scripts/tsconfig.json scripts/performance-test.ts --full",
+    "perf:stateless": "tsx --tsconfig scripts/tsconfig.json scripts/performance-test.ts --full",
     "setup": "./scripts/setup.sh",
     "test:all": "./scripts/test-all.sh",
     "ci": "./scripts/ci.sh",

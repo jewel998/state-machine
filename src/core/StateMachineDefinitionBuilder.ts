@@ -1,5 +1,5 @@
 /**
- * Modular StateMachineBuilder implementation
+ * Builder for creating stateless StateMachineDefinition instances
  */
 
 import { StateMachineConfigurationError } from '@/errors';
@@ -8,23 +8,24 @@ import {
   ContextConstraint,
   EventIdentifier,
   GuardFunction,
-  IStateMachine,
-  IStateMachineBuilder,
+  IStateMachineDefinition,
+  IStateMachineDefinitionBuilder,
   NonEmptyArray,
+  RollbackFunction,
   StateAction,
   StateIdentifier,
   StateMachineConfig,
-  StateMachineOptions,
+  TransactionFunction,
   Transition,
 } from '@/interfaces';
 import { logger } from '@/logger';
-import { StateMachine } from './StateMachine';
+import { StateMachineDefinition } from './StateMachineDefinition';
 
-export class StateMachineBuilder<
+export class StateMachineDefinitionBuilder<
   TContext extends ContextConstraint,
   TState extends StateIdentifier,
   TEvent extends EventIdentifier,
-> implements IStateMachineBuilder<TContext, TState, TEvent>
+> implements IStateMachineDefinitionBuilder<TContext, TState, TEvent>
 {
   private _initialState: TState | undefined = undefined;
   private readonly _states: Set<TState> = new Set();
@@ -34,7 +35,6 @@ export class StateMachineBuilder<
   private readonly _exitActions: Array<StateAction<TContext, TState>> = [];
   private _lastTransition: Transition<TContext, TState, TEvent> | undefined =
     undefined;
-  private _options: StateMachineOptions = {};
 
   public initialState(state: TState): this {
     logger.debug('Setting initial state', { state: String(state) });
@@ -116,6 +116,34 @@ export class StateMachineBuilder<
     return this;
   }
 
+  public transaction(
+    callback: TransactionFunction<TContext>,
+    rollback?: RollbackFunction<TContext>
+  ): this {
+    if (!this._lastTransition) {
+      throw new StateMachineConfigurationError(
+        'Cannot add transaction without a transition. Call transition() first.'
+      );
+    }
+
+    logger.debug('Adding transaction to last transition', {
+      transition: `${String(this._lastTransition.from)} -> ${String(this._lastTransition.to)}`,
+      hasRollback: !!rollback,
+    });
+
+    const updatedTransition: Transition<TContext, TState, TEvent> = {
+      ...this._lastTransition,
+      transaction: callback,
+      ...(rollback && { rollback }),
+    };
+
+    const lastIndex = this._transitions.length - 1;
+    this._transitions[lastIndex] = updatedTransition;
+    this._lastTransition = updatedTransition;
+
+    return this;
+  }
+
   public onStateEntry(state: TState, callback: ActionFunction<TContext>): this {
     logger.debug('Adding entry action', { state: String(state) });
 
@@ -138,14 +166,8 @@ export class StateMachineBuilder<
     return this;
   }
 
-  public withOptions(options: StateMachineOptions): this {
-    logger.debug('Setting options', { options });
-    this._options = { ...this._options, ...options };
-    return this;
-  }
-
-  public build(): IStateMachine<TContext, TState, TEvent> {
-    logger.debug('Building state machine');
+  public buildDefinition(): IStateMachineDefinition<TContext, TState, TEvent> {
+    logger.debug('Building state machine definition');
 
     this.validateBuilder();
 
@@ -162,16 +184,16 @@ export class StateMachineBuilder<
       }),
     };
 
-    const stateMachine = new StateMachine(config, this._options);
+    const definition = new StateMachineDefinition(config);
 
-    logger.info('State machine built successfully', {
+    logger.info('State machine definition built successfully', {
       stateCount: states.length,
       transitionCount: this._transitions.length,
       entryActionCount: this._entryActions.length,
       exitActionCount: this._exitActions.length,
     });
 
-    return stateMachine;
+    return definition;
   }
 
   private validateBuilder(): void {
@@ -179,7 +201,7 @@ export class StateMachineBuilder<
 
     if (!this._initialState) {
       errors.push(
-        'Initial state is required. Call initialState() before build().'
+        'Initial state is required. Call initialState() before buildDefinition().'
       );
     }
 

@@ -4,9 +4,10 @@
  * Enhanced with design patterns and strict typing - Modular Architecture
  */
 
-// Core classes
+// Core classes - Stateless pattern only
 export { StateMachine } from '@/core/StateMachine';
-export { StateMachineBuilder } from '@/core/StateMachineBuilder';
+export { StateMachineDefinition } from '@/core/StateMachineDefinition';
+export { StateMachineDefinitionBuilder } from '@/core/StateMachineDefinitionBuilder';
 
 // All interfaces and types
 export * from '@/interfaces';

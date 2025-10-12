@@ -9,7 +9,9 @@ import {
   GuardFunction,
   NonEmptyArray,
   ReadonlyRecord,
+  RollbackFunction,
   StateIdentifier,
+  TransactionFunction,
 } from './BaseTypes';
 
 // Configuration interfaces with strict typing
@@ -36,6 +38,8 @@ export interface Transition<
   readonly event: TEvent;
   readonly guard?: GuardFunction<TContext>;
   readonly action?: ActionFunction<TContext>;
+  readonly transaction?: TransactionFunction<TContext>;
+  readonly rollback?: RollbackFunction<TContext>;
   readonly metadata?: ReadonlyRecord<string, string | number | boolean>;
 }
 

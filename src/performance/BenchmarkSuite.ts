@@ -1,5 +1,5 @@
 /**
- * Comprehensive benchmark suite for state machine performance testing
+ * Comprehensive benchmark suite for stateless state machine performance testing
  */
 
 import { StateMachine } from '@/core/StateMachine';
@@ -35,12 +35,12 @@ export class BenchmarkSuite {
   public async runStateMachineCreationBenchmark(
     iterations = 100000
   ): Promise<BenchmarkResult> {
-    const testName = 'StateMachine Creation';
+    const testName = 'StateMachine Definition Creation';
     const initialMemory = this.getMemoryUsage();
     let peakMemory = initialMemory;
 
     console.log(
-      `Running StateMachine Creation benchmark with ${iterations.toLocaleString()} iterations...`
+      `Running StateMachine Definition Creation benchmark with ${iterations.toLocaleString()} iterations...`
     );
     const batchSize = Math.min(10000, iterations);
 
@@ -62,7 +62,7 @@ export class BenchmarkSuite {
 
       for (let i = batchStart; i < batchEnd; i++) {
         const { metrics } = PerformanceMonitor.measureSync(() => {
-          return StateMachine.builder()
+          return StateMachine.definitionBuilder()
             .initialState('IDLE')
             .state('IDLE')
             .state('RUNNING')
@@ -76,7 +76,7 @@ export class BenchmarkSuite {
             .action((context: any) => {
               if (context) context.processed = true;
             })
-            .build();
+            .buildDefinition();
         });
 
         totalTime += metrics.executionTime;
@@ -119,16 +119,16 @@ export class BenchmarkSuite {
   public async runTransitionBenchmark(
     iterations = 1000000
   ): Promise<BenchmarkResult> {
-    const testName = 'State Transitions';
+    const testName = 'Stateless Transitions';
     const initialMemory = this.getMemoryUsage();
     let peakMemory = initialMemory;
 
     console.log(
-      `Running State Transitions benchmark with ${iterations.toLocaleString()} iterations...`
+      `Running Stateless Transitions benchmark with ${iterations.toLocaleString()} iterations...`
     );
 
-    // Create a more complex state machine for realistic server testing
-    const machine = StateMachine.builder()
+    // Create a stateless definition for realistic server testing
+    const definition = StateMachine.definitionBuilder()
       .initialState('IDLE')
       .state('IDLE')
       .state('PROCESSING')
@@ -148,9 +148,8 @@ export class BenchmarkSuite {
       .action((context: any) => {
         context.counter++;
       })
-      .build();
+      .buildDefinition();
 
-    const context = { counter: 0, isValid: true };
     const batchSize = Math.min(100000, iterations);
 
     // For large tests, use statistical sampling instead of storing all times
@@ -170,11 +169,15 @@ export class BenchmarkSuite {
       const batchEnd = Math.min(batchStart + batchSize, iterations);
 
       for (let i = batchStart; i < batchEnd; i++) {
-        // Vary the context to test different paths
-        context.isValid = i % 10 !== 0; // 10% failure rate
+        // Create context for this iteration
+        const context = {
+          counter: 0,
+          isValid: i % 10 !== 0, // 10% failure rate
+          objectId: `obj_${i}`,
+        };
+        let currentState: string = 'IDLE';
 
         const { metrics } = PerformanceMonitor.measureSync(() => {
-          const currentState = machine.getCurrentState();
           let event: string;
 
           switch (currentState) {
@@ -200,7 +203,11 @@ export class BenchmarkSuite {
               event = 'reset';
           }
 
-          return machine.sendEvent(event, context);
+          const result = definition.processEvent(currentState, event, context);
+          if (result.success) {
+            currentState = result.newState as string;
+          }
+          return result.success;
         });
 
         totalTime += metrics.executionTime;
@@ -246,15 +253,61 @@ export class BenchmarkSuite {
   public async runComplexWorkflowBenchmark(
     iterations = 50000
   ): Promise<BenchmarkResult> {
-    const testName = 'Complex Workflow';
+    const testName = 'Complex Stateless Workflow';
     const times: number[] = [];
     const initialMemory = this.getMemoryUsage();
     let peakMemory = initialMemory;
 
     console.log(
-      `Running Complex Workflow benchmark with ${iterations.toLocaleString()} iterations...`
+      `Running Complex Stateless Workflow benchmark with ${iterations.toLocaleString()} iterations...`
     );
     const batchSize = Math.min(5000, iterations);
+
+    // Create ONE shared definition for all iterations
+    const orderDefinition = StateMachine.definitionBuilder()
+      .initialState('ORDER_RECEIVED')
+      .state('ORDER_RECEIVED')
+      .state('PAYMENT_PROCESSING')
+      .state('PAYMENT_VERIFIED')
+      .state('INVENTORY_CHECK')
+      .state('INVENTORY_RESERVED')
+      .state('SHIPPING_PREPARED')
+      .state('SHIPPED')
+      .state('DELIVERED')
+      .state('PAYMENT_FAILED')
+      .state('OUT_OF_STOCK')
+      .state('CANCELLED')
+      .state('REFUNDED')
+      // Happy path
+      .transition('ORDER_RECEIVED', 'PAYMENT_PROCESSING', 'process_payment')
+      .transition('PAYMENT_PROCESSING', 'PAYMENT_VERIFIED', 'payment_success')
+      .guard((context: any) => context.paymentValid)
+      .transition('PAYMENT_PROCESSING', 'PAYMENT_FAILED', 'payment_failure')
+      .guard((context: any) => !context.paymentValid)
+      .transition('PAYMENT_VERIFIED', 'INVENTORY_CHECK', 'check_inventory')
+      .transition('INVENTORY_CHECK', 'INVENTORY_RESERVED', 'reserve_items')
+      .guard((context: any) => context.inStock)
+      .transition('INVENTORY_CHECK', 'OUT_OF_STOCK', 'out_of_stock')
+      .guard((context: any) => !context.inStock)
+      .transition('INVENTORY_RESERVED', 'SHIPPING_PREPARED', 'prepare_shipping')
+      .transition('SHIPPING_PREPARED', 'SHIPPED', 'ship_order')
+      .transition('SHIPPED', 'DELIVERED', 'confirm_delivery')
+      // Error handling
+      .transition('PAYMENT_FAILED', 'CANCELLED', 'cancel_order')
+      .transition('OUT_OF_STOCK', 'CANCELLED', 'cancel_order')
+      .transition('CANCELLED', 'REFUNDED', 'process_refund')
+      // Actions
+      .action((context: any) => {
+        context.stepCount = (context.stepCount || 0) + 1;
+        context.lastTransition = Date.now();
+      })
+      .onStateEntry('DELIVERED', (context: any) => {
+        context.completedAt = Date.now();
+      })
+      .onStateEntry('REFUNDED', (context: any) => {
+        context.refundedAt = Date.now();
+      })
+      .buildDefinition();
 
     for (let batch = 0; batch < Math.ceil(iterations / batchSize); batch++) {
       const batchStart = batch * batchSize;
@@ -262,76 +315,6 @@ export class BenchmarkSuite {
 
       for (let i = batchStart; i < batchEnd; i++) {
         const { metrics } = PerformanceMonitor.measureSync(() => {
-          // Simulate a complex e-commerce order processing workflow
-          const machine = StateMachine.builder()
-            .initialState('ORDER_RECEIVED')
-            .state('ORDER_RECEIVED')
-            .state('PAYMENT_PROCESSING')
-            .state('PAYMENT_VERIFIED')
-            .state('INVENTORY_CHECK')
-            .state('INVENTORY_RESERVED')
-            .state('SHIPPING_PREPARED')
-            .state('SHIPPED')
-            .state('DELIVERED')
-            .state('PAYMENT_FAILED')
-            .state('OUT_OF_STOCK')
-            .state('CANCELLED')
-            .state('REFUNDED')
-            // Happy path
-            .transition(
-              'ORDER_RECEIVED',
-              'PAYMENT_PROCESSING',
-              'process_payment'
-            )
-            .transition(
-              'PAYMENT_PROCESSING',
-              'PAYMENT_VERIFIED',
-              'payment_success'
-            )
-            .guard((context: any) => context.paymentValid)
-            .transition(
-              'PAYMENT_PROCESSING',
-              'PAYMENT_FAILED',
-              'payment_failure'
-            )
-            .guard((context: any) => !context.paymentValid)
-            .transition(
-              'PAYMENT_VERIFIED',
-              'INVENTORY_CHECK',
-              'check_inventory'
-            )
-            .transition(
-              'INVENTORY_CHECK',
-              'INVENTORY_RESERVED',
-              'reserve_items'
-            )
-            .guard((context: any) => context.inStock)
-            .transition('INVENTORY_CHECK', 'OUT_OF_STOCK', 'out_of_stock')
-            .guard((context: any) => !context.inStock)
-            .transition(
-              'INVENTORY_RESERVED',
-              'SHIPPING_PREPARED',
-              'prepare_shipping'
-            )
-            .transition('SHIPPING_PREPARED', 'SHIPPED', 'ship_order')
-            .transition('SHIPPED', 'DELIVERED', 'confirm_delivery')
-            // Error handling
-            .transition('PAYMENT_FAILED', 'CANCELLED', 'cancel_order')
-            .transition('OUT_OF_STOCK', 'CANCELLED', 'cancel_order')
-            .transition('CANCELLED', 'REFUNDED', 'process_refund')
-            // Actions
-            .action((context: any) => {
-              context.stepCount = (context.stepCount || 0) + 1;
-              context.lastTransition = Date.now();
-            })
-            .onStateEntry('DELIVERED', (context: any) => {
-              context.completedAt = Date.now();
-            })
-            .onStateEntry('REFUNDED', (context: any) => {
-              context.refundedAt = Date.now();
-            })
-            .build();
-
           // Simulate different scenarios
           const scenario = i % 10;
           const context = {
@@ -344,26 +327,82 @@ export class BenchmarkSuite {
             refundedAt: 0,
           };
 
-          // Execute the workflow
-          machine.sendEvent('process_payment', context);
+          // Execute the workflow using stateless pattern
+          let currentState: string = 'ORDER_RECEIVED';
 
-          if (machine.getCurrentState() === 'PAYMENT_VERIFIED') {
-            machine.sendEvent('check_inventory', context);
+          // Process payment
+          let result = orderDefinition.processEvent(
+            currentState,
+            'process_payment',
+            context
+          );
+          if (result.success) currentState = result.newState as string;
 
-            if (machine.getCurrentState() === 'INVENTORY_RESERVED') {
-              machine.sendEvent('prepare_shipping', context);
-              machine.sendEvent('ship_order', context);
-              machine.sendEvent('confirm_delivery', context);
+          if (currentState === 'PAYMENT_VERIFIED') {
+            // Check inventory
+            result = orderDefinition.processEvent(
+              currentState,
+              'check_inventory',
+              context
+            );
+            if (result.success) currentState = result.newState as string;
+
+            if (currentState === 'INVENTORY_RESERVED') {
+              // Happy path: prepare shipping -> ship -> deliver
+              result = orderDefinition.processEvent(
+                currentState,
+                'prepare_shipping',
+                context
+              );
+              if (result.success) currentState = result.newState as string;
+
+              result = orderDefinition.processEvent(
+                currentState,
+                'ship_order',
+                context
+              );
+              if (result.success) currentState = result.newState as string;
+
+              result = orderDefinition.processEvent(
+                currentState,
+                'confirm_delivery',
+                context
+              );
+              if (result.success) currentState = result.newState as string;
             } else {
-              machine.sendEvent('cancel_order', context);
-              machine.sendEvent('process_refund', context);
+              // Out of stock: cancel and refund
+              result = orderDefinition.processEvent(
+                currentState,
+                'cancel_order',
+                context
+              );
+              if (result.success) currentState = result.newState as string;
+
+              result = orderDefinition.processEvent(
+                currentState,
+                'process_refund',
+                context
+              );
+              if (result.success) currentState = result.newState as string;
             }
           } else {
-            machine.sendEvent('cancel_order', context);
-            machine.sendEvent('process_refund', context);
+            // Payment failed: cancel and refund
+            result = orderDefinition.processEvent(
+              currentState,
+              'cancel_order',
+              context
+            );
+            if (result.success) currentState = result.newState as string;
+
+            result = orderDefinition.processEvent(
+              currentState,
+              'process_refund',
+              context
+            );
+            if (result.success) currentState = result.newState as string;
           }
 
-          return machine.getStatistics();
+          return currentState;
         });
 
         times.push(metrics.executionTime);
@@ -403,15 +442,38 @@ export class BenchmarkSuite {
   public async runMemoryLeakTest(
     iterations = 100000
   ): Promise<BenchmarkResult> {
-    const testName = 'Memory Leak Test';
+    const testName = 'Stateless Memory Efficiency Test';
     const times: number[] = [];
     const initialMemory = this.getMemoryUsage();
     let peakMemory = initialMemory;
 
     console.log(
-      `Running Memory Leak Test with ${iterations.toLocaleString()} iterations...`
+      `Running Stateless Memory Efficiency Test with ${iterations.toLocaleString()} iterations...`
     );
-    const machines: any[] = [];
+
+    // Create ONE shared definition for all objects
+    const definition = StateMachine.definitionBuilder()
+      .initialState('INIT')
+      .state('INIT')
+      .state('ACTIVE')
+      .state('PROCESSING')
+      .state('COMPLETED')
+      .state('ERROR')
+      .transition('INIT', 'ACTIVE', 'activate')
+      .transition('ACTIVE', 'PROCESSING', 'process')
+      .transition('PROCESSING', 'COMPLETED', 'complete')
+      .transition('PROCESSING', 'ERROR', 'error')
+      .transition('ERROR', 'INIT', 'reset')
+      .transition('COMPLETED', 'INIT', 'restart')
+      .guard((context: any) => context?.shouldProcess !== false)
+      .action((context: any) => {
+        if (context) {
+          context.processedAt = Date.now();
+        }
+      })
+      .buildDefinition();
+
+    const objects: any[] = [];
     const batchSize = Math.min(10000, iterations);
 
     for (let batch = 0; batch < Math.ceil(iterations / batchSize); batch++) {
@@ -420,66 +482,51 @@ export class BenchmarkSuite {
 
       for (let i = batchStart; i < batchEnd; i++) {
         const { metrics } = PerformanceMonitor.measureSync(() => {
-          const machine = StateMachine.builder()
-            .initialState('INIT')
-            .state('INIT')
-            .state('ACTIVE')
-            .state('PROCESSING')
-            .state('COMPLETED')
-            .state('ERROR')
-            .transition('INIT', 'ACTIVE', 'activate')
-            .transition('ACTIVE', 'PROCESSING', 'process')
-            .transition('PROCESSING', 'COMPLETED', 'complete')
-            .transition('PROCESSING', 'ERROR', 'error')
-            .transition('ERROR', 'INIT', 'reset')
-            .transition('COMPLETED', 'INIT', 'restart')
-            .guard((context: any) => context?.shouldProcess !== false)
-            .action((context: any) => {
-              if (context) {
-                context.processedAt = Date.now();
-                context.id = `machine_${i}`;
-              }
-            })
-            .build();
-
-          // Only keep a subset of machines to test memory management
-          if (i % 100 === 0) {
-            machines.push(machine);
-          }
-
-          // Simulate realistic usage patterns
-          const context = {
-            id: `context_${i}`,
+          // Create lightweight object that just stores state
+          const obj = {
+            id: `obj_${i}`,
+            state: 'INIT',
             shouldProcess: i % 20 !== 0, // 5% error rate
             data: new Array(10).fill(i), // Some data payload
             processedAt: 0,
           };
 
-          machine.sendEvent('activate', context);
-          machine.sendEvent('process', context);
-
-          if (machine.getCurrentState() === 'COMPLETED') {
-            machine.sendEvent('restart', context);
-          } else if (machine.getCurrentState() === 'ERROR') {
-            machine.sendEvent('reset', context);
+          // Keep a subset of objects to test memory management
+          if (i % 100 === 0) {
+            objects.push(obj);
           }
 
-          return machine;
+          // Simulate realistic usage patterns using stateless definition
+          let result = definition.processEvent(obj.state, 'activate', obj);
+          if (result.success) obj.state = result.newState as string;
+
+          result = definition.processEvent(obj.state, 'process', obj);
+          if (result.success) obj.state = result.newState as string;
+
+          if (obj.state === 'COMPLETED') {
+            result = definition.processEvent(obj.state, 'restart', obj);
+            if (result.success) obj.state = result.newState as string;
+          } else if (obj.state === 'ERROR') {
+            result = definition.processEvent(obj.state, 'reset', obj);
+            if (result.success) obj.state = result.newState as string;
+          }
+
+          return obj;
         });
 
         times.push(metrics.executionTime);
       }
 
-      // Check memory every batch and clean up old machines
+      // Check memory every batch and clean up old objects
       if (batch % 10 === 0) {
         const currentMemory = this.getMemoryUsage();
         if (currentMemory.heapUsed > peakMemory.heapUsed) {
           peakMemory = currentMemory;
         }
 
-        // Clean up old machines to prevent excessive memory usage
-        if (machines.length > 1000) {
-          machines.splice(0, 500);
+        // Clean up old objects to prevent excessive memory usage
+        if (objects.length > 1000) {
+          objects.splice(0, 500);
         }
 
         if (batch > 0) {
@@ -515,64 +562,76 @@ export class BenchmarkSuite {
   }
 
   /**
-   * New benchmark for concurrent operations (server-scale)
+   * Benchmark for concurrent stateless operations (server-scale)
    */
   public async runConcurrentOperationsBenchmark(
     iterations = 10000,
     concurrency = 100
   ): Promise<BenchmarkResult> {
-    const testName = 'Concurrent Operations';
+    const testName = 'Concurrent Stateless Operations';
     const times: number[] = [];
     const initialMemory = this.getMemoryUsage();
     let peakMemory = initialMemory;
 
     console.log(
-      `Running Concurrent Operations benchmark with ${iterations.toLocaleString()} iterations across ${concurrency} concurrent workers...`
+      `Running Concurrent Stateless Operations benchmark with ${iterations.toLocaleString()} iterations across ${concurrency} concurrent workers...`
     );
+
+    // Create ONE shared definition for all workers
+    const definition = StateMachine.definitionBuilder()
+      .initialState('IDLE')
+      .state('IDLE')
+      .state('WORKING')
+      .state('COMPLETED')
+      .state('FAILED')
+      .transition('IDLE', 'WORKING', 'start')
+      .transition('WORKING', 'COMPLETED', 'finish')
+      .guard((context: any) => context.shouldSucceed)
+      .transition('WORKING', 'FAILED', 'fail')
+      .guard((context: any) => !context.shouldSucceed)
+      .transition('FAILED', 'IDLE', 'retry')
+      .transition('COMPLETED', 'IDLE', 'reset')
+      .action((context: any) => {
+        context.processedAt = Date.now();
+      })
+      .buildDefinition();
 
     const { metrics } = await PerformanceMonitor.measureAsync(async () => {
       const workers = Array.from(
         { length: concurrency },
         async (_, workerId) => {
-          const machine = StateMachine.builder()
-            .initialState('IDLE')
-            .state('IDLE')
-            .state('WORKING')
-            .state('COMPLETED')
-            .state('FAILED')
-            .transition('IDLE', 'WORKING', 'start')
-            .transition('WORKING', 'COMPLETED', 'finish')
-            .guard((context: any) => context.shouldSucceed)
-            .transition('WORKING', 'FAILED', 'fail')
-            .guard((context: any) => !context.shouldSucceed)
-            .transition('FAILED', 'IDLE', 'retry')
-            .transition('COMPLETED', 'IDLE', 'reset')
-            .action((context: any) => {
-              context.workerId = workerId;
-              context.processedAt = Date.now();
-            })
-            .build();
-
           const iterationsPerWorker = Math.floor(iterations / concurrency);
 
           for (let i = 0; i < iterationsPerWorker; i++) {
-            const context = {
+            // Each worker processes objects with just state values
+            const obj = {
               taskId: `${workerId}_${i}`,
+              state: 'IDLE',
               shouldSucceed: i % 10 !== 0, // 10% failure rate
-              workerId: 0,
+              workerId,
               processedAt: 0,
             };
 
-            machine.sendEvent('start', context);
+            // Use shared definition for all operations
+            let result = definition.processEvent(obj.state, 'start', obj);
+            if (result.success) obj.state = result.newState as string;
 
-            if (machine.getCurrentState() === 'COMPLETED') {
-              machine.sendEvent('reset', context);
-            } else if (machine.getCurrentState() === 'FAILED') {
-              machine.sendEvent('retry', context);
-              context.shouldSucceed = true; // Retry succeeds
-              machine.sendEvent('start', context);
-              machine.sendEvent('finish', context);
-              machine.sendEvent('reset', context);
+            if (obj.state === 'COMPLETED') {
+              result = definition.processEvent(obj.state, 'reset', obj);
+              if (result.success) obj.state = result.newState as string;
+            } else if (obj.state === 'FAILED') {
+              result = definition.processEvent(obj.state, 'retry', obj);
+              if (result.success) obj.state = result.newState as string;
+
+              obj.shouldSucceed = true; // Retry succeeds
+              result = definition.processEvent(obj.state, 'start', obj);
+              if (result.success) obj.state = result.newState as string;
+
+              result = definition.processEvent(obj.state, 'finish', obj);
+              if (result.success) obj.state = result.newState as string;
+
+              result = definition.processEvent(obj.state, 'reset', obj);
+              if (result.success) obj.state = result.newState as string;
             }
           }
 

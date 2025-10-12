@@ -14,5 +14,5 @@ export * from './EventTypes';
 // Statistics types
 export * from './StatisticsTypes';
 
-// Main interfaces
-export * from './StateMachineInterface';
+// Stateless definition interfaces (primary API)
+export * from './StateMachineDefinition';

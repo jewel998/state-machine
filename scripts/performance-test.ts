@@ -11,7 +11,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 async function runPerformanceTests() {
-  console.log('🚀 Starting State Machine Performance Tests...\n');
+  console.log('🚀 Starting Stateless State Machine Performance Tests...\n');
 
   const suite = new BenchmarkSuite();
   const reporter = new PerformanceReporter();
@@ -104,22 +104,22 @@ const config = {
 async function runBenchmarks(suite, config, memoryOnly) {
   if (!memoryOnly) {
     console.log(
-      `📊 Running StateMachine Creation Benchmark (${config.creation.toLocaleString()} iterations)...`
+      `📊 Running Stateless Definition Creation Benchmark (${config.creation.toLocaleString()} iterations)...`
     );
     await suite.runStateMachineCreationBenchmark(config.creation);
 
     console.log(
-      `📊 Running Transition Benchmark (${config.transitions.toLocaleString()} iterations)...`
+      `📊 Running Stateless Transition Benchmark (${config.transitions.toLocaleString()} iterations)...`
     );
     await suite.runTransitionBenchmark(config.transitions);
 
     console.log(
-      `📊 Running Complex Workflow Benchmark (${config.workflow.toLocaleString()} iterations)...`
+      `📊 Running Complex Stateless Workflow Benchmark (${config.workflow.toLocaleString()} iterations)...`
     );
     await suite.runComplexWorkflowBenchmark(config.workflow);
 
     console.log(
-      `📊 Running Concurrent Operations Benchmark (${config.concurrent.toLocaleString()} iterations, ${config.concurrency} workers)...`
+      `📊 Running Concurrent Stateless Operations Benchmark (${config.concurrent.toLocaleString()} iterations, ${config.concurrency} workers)...`
     );
     await suite.runConcurrentOperationsBenchmark(
       config.concurrent,
@@ -128,7 +128,7 @@ async function runBenchmarks(suite, config, memoryOnly) {
   }
 
   console.log(
-    `📊 Running Memory Leak Test (${config.memory.toLocaleString()} iterations)...`
+    `📊 Running Stateless Memory Efficiency Test (${config.memory.toLocaleString()} iterations)...`
   );
   await suite.runMemoryLeakTest(config.memory);
 }
