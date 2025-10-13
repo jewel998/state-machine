@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📖 Documentation
+    url: https://jewel998.github.io/state-machine/
+    about: Check the official documentation for guides and API reference
+  - name: 💬 GitHub Discussions
+    url: https://github.com/jewel998/state-machine/discussions
+    about: Ask questions and discuss ideas with the community
+  - name: 📦 npm Package
+    url: https://www.npmjs.com/package/@jewel998/state-machine
+    about: View package information and installation instructions
