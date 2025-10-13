@@ -1,0 +1,153 @@
+/* Custom TypeDoc styling for API documentation */
+
+.tsd-page-title {
+  color: var(--ifm-color-primary);
+  border-bottom: 2px solid var(--ifm-color-primary);
+  padding-bottom: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.tsd-kind-icon {
+  color: var(--ifm-color-primary);
+}
+
+.tsd-signature {
+  background: var(--ifm-color-emphasis-100);
+  border-left: 4px solid var(--ifm-color-primary);
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: 4px;
+}
+
+.tsd-sources {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--ifm-color-emphasis-300);
+}
+
+.tsd-sources a {
+  color: var(--ifm-color-primary);
+  text-decoration: none;
+}
+
+.tsd-sources a:hover {
+  text-decoration: underline;
+}
+
+.tsd-panel {
+  margin-bottom: 2rem;
+}
+
+.tsd-panel-group {
+  margin-bottom: 2rem;
+}
+
+.tsd-member {
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+}
+
+.tsd-member:last-child {
+  border-bottom: none;
+}
+
+.tsd-comment {
+  margin: 1rem 0;
+  color: var(--ifm-color-emphasis-700);
+}
+
+.tsd-type-parameters {
+  background: var(--ifm-color-emphasis-100);
+  padding: 0.5rem;
+  border-radius: 4px;
+  margin: 0.5rem 0;
+}
+
+.tsd-parameters {
+  background: var(--ifm-color-emphasis-100);
+  padding: 0.5rem;
+  border-radius: 4px;
+  margin: 0.5rem 0;
+}
+
+.tsd-returns {
+  background: var(--ifm-color-success-contrast-background);
+  padding: 0.5rem;
+  border-radius: 4px;
+  margin: 0.5rem 0;
+  border-left: 4px solid var(--ifm-color-success);
+}
+
+.tsd-hierarchy {
+  background: var(--ifm-color-emphasis-100);
+  padding: 1rem;
+  border-radius: 4px;
+  margin: 1rem 0;
+}
+
+.tsd-index-panel {
+  background: var(--ifm-color-emphasis-100);
+  padding: 1rem;
+  border-radius: 4px;
+  margin: 1rem 0;
+}
+
+.tsd-index-list {
+  list-style: none;
+  padding: 0;
+}
+
+.tsd-index-list li {
+  margin: 0.25rem 0;
+}
+
+.tsd-index-list a {
+  color: var(--ifm-color-primary);
+  text-decoration: none;
+}
+
+.tsd-index-list a:hover {
+  text-decoration: underline;
+}
+
+/* Code blocks in API docs */
+.tsd-page-toolbar code,
+.tsd-panel code {
+  background: var(--ifm-color-emphasis-200);
+  padding: 0.125rem 0.25rem;
+  border-radius: 3px;
+  font-size: 0.875em;
+}
+
+/* Navigation improvements */
+.tsd-navigation {
+  background: var(--ifm-background-surface-color);
+  border-right: 1px solid var(--ifm-color-emphasis-300);
+}
+
+.tsd-navigation a {
+  color: var(--ifm-color-content);
+  text-decoration: none;
+}
+
+.tsd-navigation a:hover {
+  color: var(--ifm-color-primary);
+}
+
+.tsd-navigation .current {
+  color: var(--ifm-color-primary);
+  font-weight: 600;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+  .tsd-signature {
+    padding: 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  .tsd-panel {
+    margin-bottom: 1rem;
+  }
+}

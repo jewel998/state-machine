@@ -41,8 +41,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "lint": "eslint \"src/**/*.ts\" --cache",
-    "lint:fix": "eslint \"src/**/*.ts\" --fix",
+    "lint": "eslint \"src/**/*.ts\" --cache --ignore-path .gitignore",
+    "lint:fix": "eslint \"src/**/*.ts\" --fix --ignore-path .gitignore",
     "format": "prettier --write \"src/**/*.{ts,js,json,md}\"",
     "format:check": "prettier --check \"src/**/*.{ts,js,json,md}\"",
     "type-check": "tsc --noEmit",
@@ -65,7 +65,15 @@
     "setup": "./scripts/setup.sh",
     "test:all": "./scripts/test-all.sh",
     "ci": "./scripts/ci.sh",
-    "dev": "./scripts/dev.sh"
+    "dev": "./scripts/dev.sh",
+    "docs:install": "cd docs && npm install",
+    "docs:dev": "cd docs && npm run dev",
+    "docs:build": "cd docs && npm run build",
+    "docs:serve": "cd docs && npm run serve",
+    "docs:clean": "cd docs && npm run clean",
+    "docs:generate": "cd docs && npm run generate:api",
+    "docs:setup": "npm run docs:install && npm run docs:generate",
+    "docs:deploy": "cd docs && npm run build && npm run deploy"
   },
   "keywords": [
     "state-machine",

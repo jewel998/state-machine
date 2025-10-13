@@ -1,0 +1,15 @@
+{
+  "unversionedId": "api/interfaces/ISubject",
+  "id": "api/interfaces/ISubject",
+  "title": "ISubject",
+  "description": "@jewel998/state-machine - v0.0.3 / ISubject",
+  "source": "@site/docs/api/interfaces/ISubject.md",
+  "sourceDirName": "api/interfaces",
+  "slug": "/api/interfaces/ISubject",
+  "permalink": "/state-machine/api/interfaces/ISubject",
+  "draft": false,
+  "editUrl": "https://github.com/jewel998/state-machine/tree/main/docs/docs/api/interfaces/ISubject.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {}
+}

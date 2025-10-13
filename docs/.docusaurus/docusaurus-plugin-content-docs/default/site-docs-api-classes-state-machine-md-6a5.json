@@ -1,0 +1,15 @@
+{
+  "unversionedId": "api/classes/StateMachine",
+  "id": "api/classes/StateMachine",
+  "title": "StateMachine",
+  "description": "@jewel998/state-machine - v0.0.3 / StateMachine",
+  "source": "@site/docs/api/classes/StateMachine.md",
+  "sourceDirName": "api/classes",
+  "slug": "/api/classes/StateMachine",
+  "permalink": "/state-machine/api/classes/StateMachine",
+  "draft": false,
+  "editUrl": "https://github.com/jewel998/state-machine/tree/main/docs/docs/api/classes/StateMachine.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {}
+}

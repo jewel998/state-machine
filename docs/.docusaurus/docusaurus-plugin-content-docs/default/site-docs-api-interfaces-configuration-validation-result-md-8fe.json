@@ -1,0 +1,15 @@
+{
+  "unversionedId": "api/interfaces/ConfigurationValidationResult",
+  "id": "api/interfaces/ConfigurationValidationResult",
+  "title": "ConfigurationValidationResult",
+  "description": "@jewel998/state-machine - v0.0.3 / ConfigurationValidationResult",
+  "source": "@site/docs/api/interfaces/ConfigurationValidationResult.md",
+  "sourceDirName": "api/interfaces",
+  "slug": "/api/interfaces/ConfigurationValidationResult",
+  "permalink": "/state-machine/api/interfaces/ConfigurationValidationResult",
+  "draft": false,
+  "editUrl": "https://github.com/jewel998/state-machine/tree/main/docs/docs/api/interfaces/ConfigurationValidationResult.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {}
+}

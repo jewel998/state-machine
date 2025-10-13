@@ -1,0 +1,15 @@
+{
+  "unversionedId": "api/classes/ValidationContext",
+  "id": "api/classes/ValidationContext",
+  "title": "ValidationContext",
+  "description": "@jewel998/state-machine - v0.0.3 / ValidationContext",
+  "source": "@site/docs/api/classes/ValidationContext.md",
+  "sourceDirName": "api/classes",
+  "slug": "/api/classes/ValidationContext",
+  "permalink": "/state-machine/api/classes/ValidationContext",
+  "draft": false,
+  "editUrl": "https://github.com/jewel998/state-machine/tree/main/docs/docs/api/classes/ValidationContext.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {}
+}

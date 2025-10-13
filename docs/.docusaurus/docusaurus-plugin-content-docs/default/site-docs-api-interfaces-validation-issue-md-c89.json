@@ -1,0 +1,15 @@
+{
+  "unversionedId": "api/interfaces/ValidationIssue",
+  "id": "api/interfaces/ValidationIssue",
+  "title": "ValidationIssue",
+  "description": "@jewel998/state-machine - v0.0.3 / ValidationIssue",
+  "source": "@site/docs/api/interfaces/ValidationIssue.md",
+  "sourceDirName": "api/interfaces",
+  "slug": "/api/interfaces/ValidationIssue",
+  "permalink": "/state-machine/api/interfaces/ValidationIssue",
+  "draft": false,
+  "editUrl": "https://github.com/jewel998/state-machine/tree/main/docs/docs/api/interfaces/ValidationIssue.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {}
+}
