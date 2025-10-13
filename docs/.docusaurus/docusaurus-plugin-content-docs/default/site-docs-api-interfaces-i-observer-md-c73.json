@@ -1,0 +1,15 @@
+{
+  "unversionedId": "api/interfaces/IObserver",
+  "id": "api/interfaces/IObserver",
+  "title": "IObserver",
+  "description": "@jewel998/state-machine - v0.0.3 / IObserver",
+  "source": "@site/docs/api/interfaces/IObserver.md",
+  "sourceDirName": "api/interfaces",
+  "slug": "/api/interfaces/IObserver",
+  "permalink": "/state-machine/api/interfaces/IObserver",
+  "draft": false,
+  "editUrl": "https://github.com/jewel998/state-machine/tree/main/docs/docs/api/interfaces/IObserver.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {}
+}

@@ -1,0 +1,15 @@
+{
+  "unversionedId": "api/interfaces/StateMachineConfig",
+  "id": "api/interfaces/StateMachineConfig",
+  "title": "StateMachineConfig",
+  "description": "@jewel998/state-machine - v0.0.3 / StateMachineConfig",
+  "source": "@site/docs/api/interfaces/StateMachineConfig.md",
+  "sourceDirName": "api/interfaces",
+  "slug": "/api/interfaces/StateMachineConfig",
+  "permalink": "/state-machine/api/interfaces/StateMachineConfig",
+  "draft": false,
+  "editUrl": "https://github.com/jewel998/state-machine/tree/main/docs/docs/api/interfaces/StateMachineConfig.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {}
+}

@@ -1,0 +1,15 @@
+{
+  "unversionedId": "api/interfaces/StateChangeEvent",
+  "id": "api/interfaces/StateChangeEvent",
+  "title": "StateChangeEvent",
+  "description": "@jewel998/state-machine - v0.0.3 / StateChangeEvent",
+  "source": "@site/docs/api/interfaces/StateChangeEvent.md",
+  "sourceDirName": "api/interfaces",
+  "slug": "/api/interfaces/StateChangeEvent",
+  "permalink": "/state-machine/api/interfaces/StateChangeEvent",
+  "draft": false,
+  "editUrl": "https://github.com/jewel998/state-machine/tree/main/docs/docs/api/interfaces/StateChangeEvent.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {}
+}

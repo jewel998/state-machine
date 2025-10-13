@@ -1,0 +1,15 @@
+{
+  "unversionedId": "api/interfaces/StateAction",
+  "id": "api/interfaces/StateAction",
+  "title": "StateAction",
+  "description": "@jewel998/state-machine - v0.0.3 / StateAction",
+  "source": "@site/docs/api/interfaces/StateAction.md",
+  "sourceDirName": "api/interfaces",
+  "slug": "/api/interfaces/StateAction",
+  "permalink": "/state-machine/api/interfaces/StateAction",
+  "draft": false,
+  "editUrl": "https://github.com/jewel998/state-machine/tree/main/docs/docs/api/interfaces/StateAction.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {}
+}

@@ -1,0 +1,15 @@
+{
+  "unversionedId": "api/classes/GuardConditionError",
+  "id": "api/classes/GuardConditionError",
+  "title": "GuardConditionError",
+  "description": "@jewel998/state-machine - v0.0.3 / GuardConditionError",
+  "source": "@site/docs/api/classes/GuardConditionError.md",
+  "sourceDirName": "api/classes",
+  "slug": "/api/classes/GuardConditionError",
+  "permalink": "/state-machine/api/classes/GuardConditionError",
+  "draft": false,
+  "editUrl": "https://github.com/jewel998/state-machine/tree/main/docs/docs/api/classes/GuardConditionError.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {}
+}

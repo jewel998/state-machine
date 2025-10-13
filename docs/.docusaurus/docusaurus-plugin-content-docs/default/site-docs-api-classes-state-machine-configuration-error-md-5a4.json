@@ -1,0 +1,15 @@
+{
+  "unversionedId": "api/classes/StateMachineConfigurationError",
+  "id": "api/classes/StateMachineConfigurationError",
+  "title": "StateMachineConfigurationError",
+  "description": "@jewel998/state-machine - v0.0.3 / StateMachineConfigurationError",
+  "source": "@site/docs/api/classes/StateMachineConfigurationError.md",
+  "sourceDirName": "api/classes",
+  "slug": "/api/classes/StateMachineConfigurationError",
+  "permalink": "/state-machine/api/classes/StateMachineConfigurationError",
+  "draft": false,
+  "editUrl": "https://github.com/jewel998/state-machine/tree/main/docs/docs/api/classes/StateMachineConfigurationError.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {}
+}

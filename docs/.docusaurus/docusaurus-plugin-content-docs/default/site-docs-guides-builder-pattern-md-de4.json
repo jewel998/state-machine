@@ -1,0 +1,27 @@
+{
+  "unversionedId": "guides/builder-pattern",
+  "id": "guides/builder-pattern",
+  "title": "Builder Pattern",
+  "description": "The StateMachine library uses the Builder Pattern to provide a fluent, chainable API for constructing state machines. This approach makes the code more readable and helps prevent configuration errors.",
+  "source": "@site/docs/guides/builder-pattern.md",
+  "sourceDirName": "guides",
+  "slug": "/guides/builder-pattern",
+  "permalink": "/state-machine/guides/builder-pattern",
+  "draft": false,
+  "editUrl": "https://github.com/jewel998/state-machine/tree/main/docs/docs/guides/builder-pattern.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 1,
+  "frontMatter": {
+    "sidebar_position": 1
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Basic Concepts",
+    "permalink": "/state-machine/getting-started/basic-concepts"
+  },
+  "next": {
+    "title": "Guards and Actions",
+    "permalink": "/state-machine/guides/guards-and-actions"
+  }
+}

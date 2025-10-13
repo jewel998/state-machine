@@ -1,0 +1,15 @@
+{
+  "unversionedId": "api/classes/InvalidTransitionError",
+  "id": "api/classes/InvalidTransitionError",
+  "title": "InvalidTransitionError",
+  "description": "@jewel998/state-machine - v0.0.3 / InvalidTransitionError",
+  "source": "@site/docs/api/classes/InvalidTransitionError.md",
+  "sourceDirName": "api/classes",
+  "slug": "/api/classes/InvalidTransitionError",
+  "permalink": "/state-machine/api/classes/InvalidTransitionError",
+  "draft": false,
+  "editUrl": "https://github.com/jewel998/state-machine/tree/main/docs/docs/api/classes/InvalidTransitionError.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {}
+}

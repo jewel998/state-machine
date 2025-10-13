@@ -1,0 +1,15 @@
+{
+  "unversionedId": "api/classes/ObserverManager",
+  "id": "api/classes/ObserverManager",
+  "title": "ObserverManager",
+  "description": "@jewel998/state-machine - v0.0.3 / ObserverManager",
+  "source": "@site/docs/api/classes/ObserverManager.md",
+  "sourceDirName": "api/classes",
+  "slug": "/api/classes/ObserverManager",
+  "permalink": "/state-machine/api/classes/ObserverManager",
+  "draft": false,
+  "editUrl": "https://github.com/jewel998/state-machine/tree/main/docs/docs/api/classes/ObserverManager.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {}
+}

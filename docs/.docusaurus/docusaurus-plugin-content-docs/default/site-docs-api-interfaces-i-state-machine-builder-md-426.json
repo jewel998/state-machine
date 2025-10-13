@@ -1,0 +1,15 @@
+{
+  "unversionedId": "api/interfaces/IStateMachineBuilder",
+  "id": "api/interfaces/IStateMachineBuilder",
+  "title": "IStateMachineBuilder",
+  "description": "@jewel998/state-machine - v0.0.3 / IStateMachineBuilder",
+  "source": "@site/docs/api/interfaces/IStateMachineBuilder.md",
+  "sourceDirName": "api/interfaces",
+  "slug": "/api/interfaces/IStateMachineBuilder",
+  "permalink": "/state-machine/api/interfaces/IStateMachineBuilder",
+  "draft": false,
+  "editUrl": "https://github.com/jewel998/state-machine/tree/main/docs/docs/api/interfaces/IStateMachineBuilder.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {}
+}
