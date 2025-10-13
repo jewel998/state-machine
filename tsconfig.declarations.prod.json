@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "emitDeclarationOnly": true,
+    "declaration": true,
+    "declarationMap": false
+  },
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts", "src/performance/**/*"]
+}

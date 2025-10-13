@@ -30,10 +30,11 @@
   "homepage": "https://jewel998.github.io/state-machine/",
   "scripts": {
     "build": "npm run clean && npm run build:esbuild && npm run build:types",
-    "build:prod": "npm run clean && npm run build:esbuild:prod && npm run build:types",
+    "build:prod": "npm run clean && npm run build:esbuild:prod && npm run build:types:prod",
     "build:esbuild": "node esbuild.config.js",
     "build:esbuild:prod": "NODE_ENV=production node esbuild.config.js",
     "build:types": "tsc --project tsconfig.declarations.json --outDir dist && tsc --project tsconfig.build.json --outDir dist",
+    "build:types:prod": "tsc --project tsconfig.declarations.prod.json --outDir dist && tsc --project tsconfig.build.json --outDir dist",
     "build:tsc": "rm -rf dist && tsc",
     "clean": "rm -rf dist coverage",
     "build:watch": "tsx watch src/index.ts",
