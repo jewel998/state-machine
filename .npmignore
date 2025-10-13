@@ -1,77 +1,62 @@
 # Source files
 src/
-test/
-tests/
-__tests__/
-spec/
-specs/
-
-# Performance testing (not for production)
-scripts/performance-test.js
-scripts/performance-test.ts
-performance-results/
-src/performance/
+scripts/
+docs/
 
 # Development files
-.eslintrc*
-.prettierrc*
-tsconfig.json
-tsconfig.build.json
-jest.config.js
-jest.setup.js
+*.map
+*.tsbuildinfo
+.eslintcache
+.nyc_output
+coverage/
+performance-results/
+
+# Configuration files
+.eslintrc.*
+.prettierrc.*
+jest.config.*
+tsconfig*.json
 esbuild.config.js
-rollup.config.js
-webpack.config.js
-.babelrc*
-.editorconfig
-commitlint.config.js
-
-# Documentation
-docs/
-examples/
-*.md
-!README.md
-
-# CI/CD
+.husky/
 .github/
-.travis.yml
-.circleci/
-appveyor.yml
-.gitlab-ci.yml
+.gitignore
+.eslintignore
 
 # Development dependencies
 node_modules/
-coverage/
-.nyc_output/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 
-# IDE
+# IDE files
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
 
-# OS
+# OS files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 
-# Logs
-*.log
-logs/
+# Test files
+**/__tests__/
+**/*.test.*
+**/*.spec.*
 
-# Runtime
-.env*
-!.env.example
+# Build artifacts (keep only final outputs)
+dist/src/
+dist/scripts/
+dist/docs/
 
-# Build artifacts
-build/
-lib/
-
-# Testing
-coverage/
-.nyc_output/
-
-# Temporary
+# Temporary files
 tmp/
 temp/
-
-.npmrc
+*.tmp
+*.temp
