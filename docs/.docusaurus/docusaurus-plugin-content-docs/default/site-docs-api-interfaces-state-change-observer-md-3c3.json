@@ -1,0 +1,15 @@
+{
+  "unversionedId": "api/interfaces/StateChangeObserver",
+  "id": "api/interfaces/StateChangeObserver",
+  "title": "StateChangeObserver",
+  "description": "@jewel998/state-machine - v0.0.3 / StateChangeObserver",
+  "source": "@site/docs/api/interfaces/StateChangeObserver.md",
+  "sourceDirName": "api/interfaces",
+  "slug": "/api/interfaces/StateChangeObserver",
+  "permalink": "/state-machine/api/interfaces/StateChangeObserver",
+  "draft": false,
+  "editUrl": "https://github.com/jewel998/state-machine/tree/main/docs/docs/api/interfaces/StateChangeObserver.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {}
+}

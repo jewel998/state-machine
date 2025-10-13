@@ -1,0 +1,15 @@
+{
+  "unversionedId": "api/interfaces/Transition",
+  "id": "api/interfaces/Transition",
+  "title": "Transition",
+  "description": "@jewel998/state-machine - v0.0.3 / Transition",
+  "source": "@site/docs/api/interfaces/Transition.md",
+  "sourceDirName": "api/interfaces",
+  "slug": "/api/interfaces/Transition",
+  "permalink": "/state-machine/api/interfaces/Transition",
+  "draft": false,
+  "editUrl": "https://github.com/jewel998/state-machine/tree/main/docs/docs/api/interfaces/Transition.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {}
+}

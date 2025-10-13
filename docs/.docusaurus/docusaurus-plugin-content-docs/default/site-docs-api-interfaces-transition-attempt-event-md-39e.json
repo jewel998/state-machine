@@ -1,0 +1,15 @@
+{
+  "unversionedId": "api/interfaces/TransitionAttemptEvent",
+  "id": "api/interfaces/TransitionAttemptEvent",
+  "title": "TransitionAttemptEvent",
+  "description": "@jewel998/state-machine - v0.0.3 / TransitionAttemptEvent",
+  "source": "@site/docs/api/interfaces/TransitionAttemptEvent.md",
+  "sourceDirName": "api/interfaces",
+  "slug": "/api/interfaces/TransitionAttemptEvent",
+  "permalink": "/state-machine/api/interfaces/TransitionAttemptEvent",
+  "draft": false,
+  "editUrl": "https://github.com/jewel998/state-machine/tree/main/docs/docs/api/interfaces/TransitionAttemptEvent.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {}
+}
