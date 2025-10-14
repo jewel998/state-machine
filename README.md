@@ -369,3 +369,8 @@ See [CHANGELOG.md](CHANGELOG.md) for a detailed history of changes.
 - 📖 [Documentation](https://github.com/jewel998/state-machine/wiki)
 - 🐛 [Issue Tracker](https://github.com/jewel998/state-machine/issues)
 - 💬 [Discussions](https://github.com/jewel998/state-machine/discussions)
+
+[npm-image]: https://img.shields.io/npm/v/@jewel998/state-machine.svg
+[npm-url]: https://npmjs.org/package/@jewel998/state-machine
+[downloads-image]: https://img.shields.io/npm/dm/@jewel998/state-machine.svg
+[downloads-url]: https://npmjs.org/package/@jewel998/state-machine
