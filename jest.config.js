@@ -29,11 +29,20 @@ module.exports = {
   // Module resolution
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
+    '^@/core/(.*)$': '<rootDir>/src/core/$1',
+    '^@/middleware$': '<rootDir>/src/middleware/index.ts',
+    '^@/middleware/(.*)$': '<rootDir>/src/middleware/$1',
+    '^@/types/(.*)$': '<rootDir>/src/types/$1',
   },
 
   // Transform
   transform: {
-    '^.+\\.ts$': 'ts-jest',
+    '^.+\\.ts$': [
+      'ts-jest',
+      {
+        tsconfig: 'tsconfig.test.json',
+      },
+    ],
   },
 
   // Other options

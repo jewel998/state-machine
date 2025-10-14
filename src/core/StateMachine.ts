@@ -12,6 +12,7 @@ import {
   StateMachineConfig,
 } from '@/interfaces';
 import { logger } from '@/logger';
+import { IMiddlewareManager } from '@/middleware/types';
 import { ConfigurationValidator } from '@/validation/ConfigurationValidator';
 import { StateMachineDefinition } from './StateMachineDefinition';
 
@@ -22,10 +23,11 @@ export class StateMachine {
     TState extends StateIdentifier,
     TEvent extends EventIdentifier,
   >(
-    config: StateMachineConfig<TContext, TState, TEvent>
+    config: StateMachineConfig<TContext, TState, TEvent>,
+    middlewareManager?: IMiddlewareManager<TContext, TState>
   ): IStateMachineDefinition<TContext, TState, TEvent> {
     StateMachine.validateConfiguration(config);
-    return new StateMachineDefinition(config);
+    return new StateMachineDefinition(config, middlewareManager);
   }
 
   // Builder for stateless definitions (primary API)

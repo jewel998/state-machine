@@ -2,12 +2,12 @@
  * Tests for the new stateless StateMachineDefinition pattern
  */
 
-import { StateMachine } from '@/core/StateMachine';
+import { StateMachine } from '../core/StateMachine';
 import {
   ActionExecutionError,
   GuardConditionError,
   InvalidTransitionError,
-} from '@/errors';
+} from '../errors';
 
 describe('StateMachineDefinition (Stateless Pattern)', () => {
   describe('Basic Functionality', () => {

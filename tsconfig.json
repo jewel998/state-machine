@@ -16,6 +16,7 @@
       "@/*": ["./*"],
       "@/core/*": ["./core/*"],
       "@/interfaces/*": ["./interfaces/*"],
+      "@/middleware/*": ["./middleware/*"],
       "@/patterns/*": ["./patterns/*"],
       "@/validation/*": ["./validation/*"],
       "@/utils/*": ["./utils/*"],

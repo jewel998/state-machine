@@ -1,4 +1,21 @@
 ---
+title: Builder Pattern
+description:
+  Master the builder pattern for creating state machines with fluent, chainable API. Learn method
+  chaining, TypeScript support, validation, and advanced builder patterns for complex
+  configurations.
+keywords:
+  [
+    builder pattern,
+    fluent API,
+    method chaining,
+    state machine builder,
+    TypeScript builder,
+    validation,
+    configuration,
+    chainable methods,
+    state machine construction,
+  ]
 sidebar_position: 1
 ---
 
@@ -12,7 +29,7 @@ configuration errors.
 
 The builder pattern allows you to chain method calls to configure your state machine:
 
-```javascript
+```javascript showLineNumbers
 import { StateMachine } from '@jewel998/state-machine';
 
 const machine = StateMachine.builder()
@@ -29,7 +46,7 @@ const machine = StateMachine.builder()
 
 ### State Definition
 
-```javascript
+```javascript showLineNumbers
 // Define states explicitly
 .state('STATE_NAME')
 
@@ -39,14 +56,14 @@ const machine = StateMachine.builder()
 
 ### Initial State
 
-```javascript
+```javascript showLineNumbers
 // Set the starting state (required)
 .initialState('IDLE')
 ```
 
 ### Transitions
 
-```javascript
+```javascript showLineNumbers
 // Basic transition
 .transition('FROM_STATE', 'TO_STATE', 'EVENT')
 
@@ -60,7 +77,7 @@ const machine = StateMachine.builder()
 
 Guards and actions are applied to the **last defined transition**:
 
-```javascript
+```javascript showLineNumbers
 const machine = StateMachine.builder()
   .initialState('IDLE')
 
@@ -79,7 +96,7 @@ const machine = StateMachine.builder()
 
 ### State Entry and Exit Actions
 
-```javascript
+```javascript showLineNumbers
 const machine = StateMachine.builder()
   .initialState('IDLE')
   .state('IDLE')
@@ -108,7 +125,7 @@ const machine = StateMachine.builder()
 
 Most builder methods can be called in any order:
 
-```javascript
+```javascript showLineNumbers
 // These are equivalent
 const machine1 = StateMachine.builder()
   .initialState('A')
@@ -129,7 +146,7 @@ const machine2 = StateMachine.builder()
 
 Guards and actions must come **immediately after** the transition they apply to:
 
-```javascript
+```javascript showLineNumbers
 // ✅ Correct - guard applies to the transition above it
 .transition('A', 'B', 'event1')
 .guard((context) => context.isValid)
@@ -146,7 +163,7 @@ Guards and actions must come **immediately after** the transition they apply to:
 
 You can add multiple guards and actions to the same transition:
 
-```javascript
+```javascript showLineNumbers
 .transition('A', 'B', 'proceed')
 .guard((context) => context.hasPermission)    // First guard
 .guard((context) => context.isValid)          // Second guard (AND logic)
@@ -160,7 +177,7 @@ You can add multiple guards and actions to the same transition:
 
 Build different state machines based on conditions:
 
-```javascript
+```javascript showLineNumbers
 function createMachine(hasAdvancedFeatures) {
   const builder = StateMachine.builder()
     .initialState('START')
@@ -183,7 +200,7 @@ function createMachine(hasAdvancedFeatures) {
 
 Break complex machines into smaller, composable parts:
 
-```javascript
+```javascript showLineNumbers
 function addAuthenticationStates(builder) {
   return builder
     .state('LOGGED_OUT')
@@ -213,7 +230,7 @@ const machine = addDataStates(
 
 Use configuration objects for complex setups:
 
-```javascript
+```javascript showLineNumbers
 const config = {
   initialState: 'IDLE',
   states: ['IDLE', 'PROCESSING', 'COMPLETE', 'ERROR'],
@@ -248,7 +265,7 @@ const machine = buildFromConfig(config);
 
 The builder provides full TypeScript support with generic types:
 
-```typescript
+```typescript showLineNumbers
 interface MyContext {
   userId: string;
   data: any[];
@@ -279,7 +296,7 @@ const machine = StateMachine.builder<MyContext, MyState, MyEvent>()
 
 The builder validates your configuration and provides helpful error messages:
 
-```javascript
+```javascript showLineNumbers
 // Missing initial state
 try {
   StateMachine.builder().state('A').transition('A', 'B', 'go').build(); // Throws: "Initial state must be set"
@@ -311,7 +328,7 @@ const machine = StateMachine.builder()
 
 ### Use Descriptive Names
 
-```javascript
+```javascript showLineNumbers
 // ✅ Good - clear, descriptive names
 .transition('PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'processPayment')
 .guard((context) => context.hasValidPaymentMethod)
@@ -325,7 +342,7 @@ const machine = StateMachine.builder()
 
 ### Group Related Configuration
 
-```javascript
+```javascript showLineNumbers
 const machine = StateMachine.builder()
   .initialState('IDLE')
 
@@ -355,7 +372,7 @@ const machine = StateMachine.builder()
 
 ### Validate Early
 
-```javascript
+```javascript showLineNumbers
 // Check configuration before building
 const builder = StateMachine.builder().initialState('START');
 

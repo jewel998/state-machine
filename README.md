@@ -1,3 +1,5 @@
+[![NPM Version][npm-image]][npm-url] [![NPM Downloads][downloads-image]][downloads-url]
+
 # @jewel998/state-machine
 
 A lightweight, type-safe state machine library for JavaScript/TypeScript with production-ready
@@ -12,6 +14,8 @@ handling, and server-scale performance testing.
 - ⚡ **Production Ready** - Optimized bundle (~45KB) with tree-shaking support
 - 🛡️ **Guard Conditions** - Conditional transition logic (sync & async)
 - 📝 **Actions** - State entry, exit, and transition actions (sync & async)
+- 🔧 **Middleware Pipeline System** - Powerful middleware system with BaseMiddleware class and
+  extensible architecture
 - 🔄 **Async Transactions** - Database transactions with automatic rollback
 - 🚨 **Error Handling** - Comprehensive error types with rollback support
 - 🔍 **Observability** - Built-in statistics, history, and event tracking
@@ -173,6 +177,72 @@ const orderMachine = StateMachine.builder<OrderContext, OrderState, OrderEvent>(
   .transition('APPROVED', 'SHIPPED', 'ship')
   .build();
 ```
+
+### Middleware Pipeline System
+
+Create powerful, composable middleware with the new pipeline architecture:
+
+```typescript
+import { StateMachine, BaseMiddleware } from '@jewel998/state-machine';
+
+// Create custom middleware extending BaseMiddleware
+class LoggingMiddleware extends BaseMiddleware<OrderContext, OrderState> {
+  constructor() {
+    super('logging', { priority: 100 });
+  }
+
+  async onAction(context, next, originalAction) {
+    console.log(`Processing order ${context.currentContext.orderId}`);
+    const result = await next();
+    console.log('Order processing completed');
+    return result;
+  }
+
+  async onBeforePipeline(context) {
+    console.log(`Pipeline ${context.pipelineId} starting`);
+  }
+}
+
+class ValidationMiddleware extends BaseMiddleware<OrderContext, OrderState> {
+  constructor() {
+    super('validation', { priority: -100 }); // Run first
+  }
+
+  async onGuard(context, next, originalGuard) {
+    if (context.currentContext.amount <= 0) {
+      return false; // Stop pipeline
+    }
+    return await next();
+  }
+}
+
+// Build state machine with middleware pipeline
+const definition = StateMachine.definitionBuilder<OrderContext, OrderState, OrderEvent>()
+  .initialState('PENDING')
+  .state('PENDING')
+  .state('APPROVED')
+  .transition('PENDING', 'APPROVED', 'approve')
+  .action((context) => {
+    context.approved = true;
+    context.approvedAt = Date.now();
+  })
+
+  // Add middleware - executes in priority order
+  .addMiddleware(new ValidationMiddleware()) // Priority: -100 (first)
+  .addMiddleware(new LoggingMiddleware()) // Priority: 100 (second)
+  .buildDefinition();
+
+// Use async methods for full middleware support
+const result = await definition.processEventAsync('PENDING', 'approve', orderContext);
+```
+
+**Key Features:**
+
+- **Complete Pipeline Implementation** - All middleware methods fully functional
+- **BaseMiddleware Class** - Type-safe base class for easy custom middleware
+- **Pipeline Context** - Access to execution order, pipeline ID, and previous results
+- **Backward Compatibility** - Existing middleware configurations work unchanged
+- **Error Handling** - Comprehensive error handling and recovery mechanisms
 
 ## Examples
 

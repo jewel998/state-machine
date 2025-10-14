@@ -15,7 +15,7 @@
 const sidebars = {
   // By default, Docusaurus generates a sidebar from the docs folder structure
   tutorialSidebar: [
-    'intro',
+    'introduction',
     {
       type: 'category',
       label: 'Getting Started',
@@ -28,7 +28,25 @@ const sidebars = {
     {
       type: 'category',
       label: 'Guides',
-      items: ['guides/builder-pattern', 'guides/guards-and-actions'],
+      items: [
+        'guides/builder-pattern',
+        'guides/guards-and-actions',
+        'guides/middleware-system',
+        'guides/custom-middleware',
+        'guides/error-handling',
+        'guides/testing',
+      ],
+    },
+    {
+      type: 'category',
+      label: 'Integration Examples',
+      items: ['integration/react', 'integration/nestjs', 'integration/nodejs'],
+    },
+    'architecture',
+    {
+      type: 'link',
+      label: 'API Reference',
+      href: '/docs/api',
     },
   ],
 

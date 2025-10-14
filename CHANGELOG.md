@@ -7,7 +7,46 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-## [0.0.4] - 2024-12-10
+## [0.0.5] - 2025-10-14
+
+### Added
+
+- **GitHub Issue Templates** - Comprehensive issue templates for better bug reporting and feature
+  requests
+  - Bug report template with detailed sections for reproduction steps
+  - Feature request template with use cases and examples
+  - Question template for usage inquiries
+  - Issue template configuration with helpful links
+- **Pull Request Template** - Structured PR template with checklists and guidelines for contributors
+- **Enhanced Build Configuration** - Improved production build process and npm package optimization
+  - Comprehensive `.npmignore` to exclude development files from npm package
+  - Source maps excluded from production releases for smaller package size
+  - Updated publish script to use production build configuration
+- **Middleware Pipeline System** - Complete middleware system with pipeline pattern for extensible
+  state machine functionality
+- **BaseMiddleware Class** - Abstract base class for easy custom middleware creation with lifecycle
+  hooks
+- **Middleware Context Information** - Rich context with pipeline ID, execution order, and previous
+  results
+- **Pipeline Execution Methods** - Full implementation of `executeActionPipeline`,
+  `executeEntryPipeline`, and `executeExitPipeline`
+- **Type-Safe Middleware** - Full TypeScript support with proper generic constraints and type safety
+- **Immutability Middleware** - Built-in immutability middleware with support for native, Immer, and
+  Immutable.js providers
+- **Error Handling** - Comprehensive error handling in middleware pipeline with recovery mechanisms
+- **Lifecycle Hooks** - Before/after pipeline hooks for setup and cleanup operations
+
+### Changed
+
+- **Package Configuration** - Optimized npm package files array to exclude source maps
+- **Build Process** - Enhanced production build workflow for better distribution
+
+### Security
+
+- **Production Optimization** - Source maps excluded from production releases
+- **Package Security** - Development files properly excluded from npm distribution
+
+## [0.0.4] - 2025-10-12
 
 ### Added
 

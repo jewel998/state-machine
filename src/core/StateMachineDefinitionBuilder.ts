@@ -19,6 +19,8 @@ import {
   Transition,
 } from '@/interfaces';
 import { logger } from '@/logger';
+import { MiddlewareManager } from '@/middleware/MiddlewareManager';
+import { IMiddlewareManager, MiddlewareConfig } from '@/middleware/types';
 import { StateMachineDefinition } from './StateMachineDefinition';
 
 export class StateMachineDefinitionBuilder<
@@ -35,6 +37,8 @@ export class StateMachineDefinitionBuilder<
   private readonly _exitActions: Array<StateAction<TContext, TState>> = [];
   private _lastTransition: Transition<TContext, TState, TEvent> | undefined =
     undefined;
+  private readonly _middlewareManager: IMiddlewareManager<TContext, TState> =
+    new MiddlewareManager<TContext, TState>();
 
   public initialState(state: TState): this {
     logger.debug('Setting initial state', { state: String(state) });
@@ -166,6 +170,12 @@ export class StateMachineDefinitionBuilder<
     return this;
   }
 
+  public addMiddleware(middleware: MiddlewareConfig<TContext, TState>): this {
+    this._middlewareManager.addMiddleware(middleware);
+    logger.debug('Added middleware to builder', { name: middleware.name });
+    return this;
+  }
+
   public buildDefinition(): IStateMachineDefinition<TContext, TState, TEvent> {
     logger.debug('Building state machine definition');
 
@@ -184,7 +194,10 @@ export class StateMachineDefinitionBuilder<
       }),
     };
 
-    const definition = new StateMachineDefinition(config);
+    const definition = new StateMachineDefinition(
+      config,
+      this._middlewareManager
+    );
 
     logger.info('State machine definition built successfully', {
       stateCount: states.length,

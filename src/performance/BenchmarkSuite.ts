@@ -3,6 +3,7 @@
  */
 
 import { StateMachine } from '@/core/StateMachine';
+import { ActionContext, GuardContext, UnknownArray } from '@/types/common';
 import { PerformanceMonitor } from '@/utils/PerformanceMonitor';
 
 export interface BenchmarkResult {
@@ -72,9 +73,9 @@ export class BenchmarkSuite {
             .transition('RUNNING', 'COMPLETED', 'finish')
             .transition('RUNNING', 'ERROR', 'error')
             .transition('ERROR', 'IDLE', 'reset')
-            .guard((context: any) => context?.isValid !== false)
-            .action((context: any) => {
-              if (context) context.processed = true;
+            .guard((context: GuardContext) => context?.['isValid'] !== false)
+            .action((context: ActionContext) => {
+              if (context) context['processed'] = true;
             })
             .buildDefinition();
         });
@@ -139,14 +140,16 @@ export class BenchmarkSuite {
       .transition('IDLE', 'PROCESSING', 'start')
       .transition('PROCESSING', 'VALIDATING', 'validate')
       .transition('VALIDATING', 'COMPLETED', 'approve')
-      .guard((context: any) => context.isValid)
+      .guard((context: GuardContext) => Boolean(context['isValid']))
       .transition('VALIDATING', 'ERROR', 'reject')
-      .guard((context: any) => !context.isValid)
+      .guard((context: GuardContext) => !context['isValid'])
       .transition('ERROR', 'RETRY', 'retry')
       .transition('RETRY', 'PROCESSING', 'restart')
       .transition('COMPLETED', 'IDLE', 'reset')
-      .action((context: any) => {
-        context.counter++;
+      .action((context: ActionContext) => {
+        if (typeof context['counter'] === 'number') {
+          context['counter']++;
+        }
       })
       .buildDefinition();
 
@@ -281,14 +284,14 @@ export class BenchmarkSuite {
       // Happy path
       .transition('ORDER_RECEIVED', 'PAYMENT_PROCESSING', 'process_payment')
       .transition('PAYMENT_PROCESSING', 'PAYMENT_VERIFIED', 'payment_success')
-      .guard((context: any) => context.paymentValid)
+      .guard((context: GuardContext) => Boolean(context['paymentValid']))
       .transition('PAYMENT_PROCESSING', 'PAYMENT_FAILED', 'payment_failure')
-      .guard((context: any) => !context.paymentValid)
+      .guard((context: GuardContext) => !context['paymentValid'])
       .transition('PAYMENT_VERIFIED', 'INVENTORY_CHECK', 'check_inventory')
       .transition('INVENTORY_CHECK', 'INVENTORY_RESERVED', 'reserve_items')
-      .guard((context: any) => context.inStock)
+      .guard((context: GuardContext) => Boolean(context['inStock']))
       .transition('INVENTORY_CHECK', 'OUT_OF_STOCK', 'out_of_stock')
-      .guard((context: any) => !context.inStock)
+      .guard((context: GuardContext) => !context['inStock'])
       .transition('INVENTORY_RESERVED', 'SHIPPING_PREPARED', 'prepare_shipping')
       .transition('SHIPPING_PREPARED', 'SHIPPED', 'ship_order')
       .transition('SHIPPED', 'DELIVERED', 'confirm_delivery')
@@ -297,15 +300,17 @@ export class BenchmarkSuite {
       .transition('OUT_OF_STOCK', 'CANCELLED', 'cancel_order')
       .transition('CANCELLED', 'REFUNDED', 'process_refund')
       // Actions
-      .action((context: any) => {
-        context.stepCount = (context.stepCount || 0) + 1;
-        context.lastTransition = Date.now();
+      .action((context: ActionContext) => {
+        const currentStep =
+          typeof context['stepCount'] === 'number' ? context['stepCount'] : 0;
+        context['stepCount'] = currentStep + 1;
+        context['lastTransition'] = Date.now();
       })
-      .onStateEntry('DELIVERED', (context: any) => {
-        context.completedAt = Date.now();
+      .onStateEntry('DELIVERED', (context: ActionContext) => {
+        context['completedAt'] = Date.now();
       })
-      .onStateEntry('REFUNDED', (context: any) => {
-        context.refundedAt = Date.now();
+      .onStateEntry('REFUNDED', (context: ActionContext) => {
+        context['refundedAt'] = Date.now();
       })
       .buildDefinition();
 
@@ -465,15 +470,15 @@ export class BenchmarkSuite {
       .transition('PROCESSING', 'ERROR', 'error')
       .transition('ERROR', 'INIT', 'reset')
       .transition('COMPLETED', 'INIT', 'restart')
-      .guard((context: any) => context?.shouldProcess !== false)
-      .action((context: any) => {
+      .guard((context: GuardContext) => context?.['shouldProcess'] !== false)
+      .action((context: ActionContext) => {
         if (context) {
-          context.processedAt = Date.now();
+          context['processedAt'] = Date.now();
         }
       })
       .buildDefinition();
 
-    const objects: any[] = [];
+    const objects: UnknownArray = [];
     const batchSize = Math.min(10000, iterations);
 
     for (let batch = 0; batch < Math.ceil(iterations / batchSize); batch++) {
@@ -586,13 +591,13 @@ export class BenchmarkSuite {
       .state('FAILED')
       .transition('IDLE', 'WORKING', 'start')
       .transition('WORKING', 'COMPLETED', 'finish')
-      .guard((context: any) => context.shouldSucceed)
+      .guard((context: GuardContext) => Boolean(context['shouldSucceed']))
       .transition('WORKING', 'FAILED', 'fail')
-      .guard((context: any) => !context.shouldSucceed)
+      .guard((context: GuardContext) => !context['shouldSucceed'])
       .transition('FAILED', 'IDLE', 'retry')
       .transition('COMPLETED', 'IDLE', 'reset')
-      .action((context: any) => {
-        context.processedAt = Date.now();
+      .action((context: ActionContext) => {
+        context['processedAt'] = Date.now();
       })
       .buildDefinition();
 

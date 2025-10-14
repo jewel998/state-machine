@@ -1,4 +1,22 @@
 ---
+title: Basic Concepts
+description:
+  Master fundamental state machine concepts including states, events, transitions, guards, actions,
+  and context. Learn design patterns, best practices, and common anti-patterns to avoid.
+keywords:
+  [
+    state machine concepts,
+    FSM fundamentals,
+    states,
+    events,
+    transitions,
+    guards,
+    actions,
+    context,
+    design patterns,
+    best practices,
+    finite state machine theory,
+  ]
 sidebar_position: 3
 ---
 
@@ -36,7 +54,7 @@ A **state** represents a specific condition or situation in your system. States 
 - **Well-defined** - each state should have a clear meaning
 - **Finite** - there should be a limited number of states
 
-```javascript
+```javascript showLineNumbers
 // Good state design
 const states = ['IDLE', 'LOADING', 'SUCCESS', 'ERROR'];
 
@@ -52,7 +70,7 @@ An **event** is a trigger that can cause a state transition. Events represent:
 - System events (timeout, response received)
 - External triggers (API calls, notifications)
 
-```javascript
+```javascript showLineNumbers
 const events = ['START', 'SUCCESS', 'FAILURE', 'RETRY', 'CANCEL'];
 ```
 
@@ -60,7 +78,7 @@ const events = ['START', 'SUCCESS', 'FAILURE', 'RETRY', 'CANCEL'];
 
 A **transition** defines how the system moves from one state to another in response to an event:
 
-```javascript
+```javascript showLineNumbers
 // From state 'IDLE', when 'START' event occurs, go to 'LOADING' state
 .transition('IDLE', 'LOADING', 'START')
 ```
@@ -69,7 +87,7 @@ A **transition** defines how the system moves from one state to another in respo
 
 The **initial state** is where the state machine begins when started:
 
-```javascript
+```javascript showLineNumbers
 .initialState('IDLE') // Machine starts in IDLE state
 ```
 
@@ -80,7 +98,7 @@ The **initial state** is where the state machine begins when started:
 **Context** is additional data that travels with the state machine, providing information needed for
 decisions:
 
-```javascript
+```javascript showLineNumbers
 const context = {
   userId: '123',
   attempts: 0,
@@ -97,7 +115,7 @@ const context = {
 
 **Guards** are conditions that must be true for a transition to occur:
 
-```javascript
+```javascript showLineNumbers
 .transition('LOGGED_OUT', 'LOGGED_IN', 'login')
 .guard((context) => context.username && context.password)
 .guard((context) => context.attempts < 5) // Multiple guards (AND logic)
@@ -113,7 +131,7 @@ Guards provide:
 
 **Actions** are side effects that execute during transitions or state changes:
 
-```javascript
+```javascript showLineNumbers
 // Transition action - executes during transition
 .transition('IDLE', 'LOADING', 'start')
 .action((context) => {
@@ -139,7 +157,7 @@ Guards provide:
 State machines are **deterministic** - given the same state and event, the outcome is always the
 same:
 
-```javascript
+```javascript showLineNumbers
 // Always predictable
 currentState = 'IDLE';
 event = 'START';
@@ -150,7 +168,7 @@ event = 'START';
 
 Well-designed state machines prevent **impossible states**:
 
-```javascript
+```javascript showLineNumbers
 // Impossible with state machine
 const badState = {
   isLoading: true,
@@ -166,7 +184,7 @@ const validStates = ['LOADING', 'COMPLETE', 'ERROR']; // Mutually exclusive
 
 All state changes must be **explicitly defined**:
 
-```javascript
+```javascript showLineNumbers
 // Must define all valid transitions
 .transition('A', 'B', 'event1')
 .transition('B', 'C', 'event2')
@@ -187,7 +205,7 @@ stateDiagram-v2
     Step3 --> [*]: complete
 ```
 
-```javascript
+```javascript showLineNumbers
 const wizardMachine = StateMachine.builder()
   .initialState('STEP_1')
   .transition('STEP_1', 'STEP_2', 'next')
@@ -210,7 +228,7 @@ stateDiagram-v2
     Error --> [*]: give_up
 ```
 
-```javascript
+```javascript showLineNumbers
 const processingMachine = StateMachine.builder()
   .initialState('PROCESSING')
   .transition('PROCESSING', 'SUCCESS', 'success')
@@ -239,7 +257,7 @@ stateDiagram-v2
 
 Use clear, descriptive state names:
 
-```javascript
+```javascript showLineNumbers
 // Good
 const states = ['IDLE', 'AUTHENTICATING', 'AUTHENTICATED', 'FAILED'];
 
@@ -251,7 +269,7 @@ const states = ['S1', 'S2', 'S3', 'S4'];
 
 Use action-oriented event names:
 
-```javascript
+```javascript showLineNumbers
 // Good
 const events = ['LOGIN', 'LOGOUT', 'TIMEOUT', 'RETRY'];
 
@@ -263,7 +281,7 @@ const events = ['E1', 'THING_HAPPENED', 'STUFF'];
 
 Each state should represent one clear concept:
 
-```javascript
+```javascript showLineNumbers
 // Good - each state has single responsibility
 .state('LOADING')     // Only loading
 .state('VALIDATING')  // Only validating
@@ -277,7 +295,7 @@ Each state should represent one clear concept:
 
 Use the minimum number of states needed:
 
-```javascript
+```javascript showLineNumbers
 // Good - essential states only
 const states = ['IDLE', 'PROCESSING', 'COMPLETE', 'ERROR'];
 
@@ -298,7 +316,7 @@ const states = [
 
 Avoid using multiple boolean flags instead of states:
 
-```javascript
+```javascript showLineNumbers
 // Anti-pattern
 const component = {
   isLoading: false,
@@ -315,7 +333,7 @@ const states = ['IDLE', 'LOADING', 'SUCCESS', 'ERROR', 'RETRYING'];
 
 Avoid deriving state from other properties:
 
-```javascript
+```javascript showLineNumbers
 // Anti-pattern
 const isLoading = !data && !error;
 
@@ -327,7 +345,7 @@ const currentState = machine.getCurrentState(); // 'LOADING'
 
 Don't forget to handle all possible events in each state:
 
-```javascript
+```javascript showLineNumbers
 // Incomplete - what if 'cancel' happens during 'LOADING'?
 .transition('IDLE', 'LOADING', 'start')
 .transition('LOADING', 'SUCCESS', 'complete')

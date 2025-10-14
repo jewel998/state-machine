@@ -50,3 +50,17 @@ export type { PerformanceMetrics } from '@/utils/PerformanceMonitor';
 export { HistoryManager } from '@/history/HistoryManager';
 export { ObserverManager } from '@/observers/ObserverManager';
 export { StatisticsCollector } from '@/statistics/StatisticsCollector';
+
+// Middleware system (for extensibility)
+export { BaseMiddleware } from '@/middleware/BaseMiddleware';
+export { MiddlewareManager } from '@/middleware/MiddlewareManager';
+export * from '@/middleware/types';
+
+// Middleware factories (examples moved to examples/ directory)
+export * from '@/middleware/factories';
+
+// Immutability middleware
+export { ImmutabilityMiddleware } from '@/middleware/immutability/ImmutabilityMiddleware';
+export * from '@/middleware/immutability/providers/ImmerImmutabilityProvider';
+export * from '@/middleware/immutability/providers/ImmutableJSProvider';
+export * from '@/middleware/immutability/providers/NativeImmutabilityProvider';
