@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/"
                        xmlns:moz="http://www.mozilla.org/2006/browser/search/">
-  <ShortName>@jewel998/state-machine</ShortName>
-  <Description>Search @jewel998/state-machine</Description>
+  <ShortName>State Machine</ShortName>
+  <Description>Search State Machine</Description>
   <InputEncoding>UTF-8</InputEncoding>
   <Image width="16" height="16" type="image/x-icon">https://jewel998.github.io/state-machine/img/favicon.ico</Image>
   <Url type="text/html" method="get" template="https://jewel998.github.io/state-machine/search?q={searchTerms}"/>
