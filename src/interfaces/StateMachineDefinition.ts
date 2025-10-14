@@ -2,6 +2,7 @@
  * Stateless state machine definition interfaces
  */
 
+import { IMiddleware, MiddlewareConfig } from '../middleware/types';
 import {
   ContextConstraint,
   EventIdentifier,
@@ -10,16 +11,24 @@ import {
 import { StateMachineConfig } from './ConfigurationTypes';
 
 // Result types for stateless operations
-export interface TransitionResult<TState extends StateIdentifier> {
+export interface TransitionResult<
+  TState extends StateIdentifier,
+  TContext extends ContextConstraint = ContextConstraint,
+> {
   success: boolean;
   newState: TState;
+  context?: TContext;
   error?: Error;
   rollbackExecuted?: boolean;
 }
 
-export interface AsyncTransitionResult<TState extends StateIdentifier> {
+export interface AsyncTransitionResult<
+  TState extends StateIdentifier,
+  TContext extends ContextConstraint = ContextConstraint,
+> {
   success: boolean;
   newState: TState;
+  context?: TContext;
   error?: Error;
   rollbackExecuted?: boolean;
   transactionId?: string;
@@ -48,13 +57,13 @@ export interface IStateMachineDefinition<
     currentState: TState,
     event: TEvent,
     context: TContext
-  ): TransitionResult<TState>;
+  ): TransitionResult<TState, TContext>;
 
   processEventAsync(
     currentState: TState,
     event: TEvent,
     context: TContext
-  ): Promise<AsyncTransitionResult<TState>>;
+  ): Promise<AsyncTransitionResult<TState, TContext>>;
 
   // State queries
   getAvailableEvents(
@@ -67,6 +76,26 @@ export interface IStateMachineDefinition<
 
   // Configuration access
   getConfiguration(): StateMachineConfig<TContext, TState, TEvent>;
+
+  // Middleware management
+  addMiddleware(
+    middleware:
+      | MiddlewareConfig<TContext, TState>
+      | IMiddleware<TContext, TState>
+  ): void;
+  removeMiddleware(name: string): void;
+  hasMiddleware(name: string): boolean;
+  getMiddleware(
+    name: string
+  ):
+    | MiddlewareConfig<TContext, TState>
+    | IMiddleware<TContext, TState>
+    | undefined;
+  getPipelineOrder?(): string[];
+  clearPipeline?(): void;
+  // Legacy methods for backward compatibility
+  getChainOrder?(): string[];
+  clearChain?(): void;
 }
 
 // Builder for stateless definitions

@@ -61,6 +61,7 @@ module.exports = {
         'src/logger.ts',
         'src/core/StateMachine.ts',
         'src/patterns/Observer.ts',
+        'src/middleware/factories.ts',
       ],
       rules: {
         'no-console': 'off',

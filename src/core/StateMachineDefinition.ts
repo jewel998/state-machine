@@ -8,6 +8,7 @@ import {
   InvalidTransitionError,
 } from '@/errors';
 import {
+  ActionFunction,
   AsyncTransitionResult,
   ContextConstraint,
   EventIdentifier,
@@ -19,6 +20,8 @@ import {
   TransitionResult,
 } from '@/interfaces';
 import { logger } from '@/logger';
+import { MiddlewareManager } from '@/middleware/MiddlewareManager';
+import { IMiddlewareManager, MiddlewareConfig } from '@/middleware/types';
 import { IdGenerator } from '@/utils/IdGenerator';
 import { PerformanceMonitor } from '@/utils/PerformanceMonitor';
 
@@ -41,12 +44,18 @@ export class StateMachineDefinition<
     TState,
     readonly StateAction<TContext, TState>[]
   >;
+  private readonly middlewareManager: IMiddlewareManager<TContext, TState>;
 
-  constructor(config: StateMachineConfig<TContext, TState, TEvent>) {
+  constructor(
+    config: StateMachineConfig<TContext, TState, TEvent>,
+    middlewareManager?: IMiddlewareManager<TContext, TState>
+  ) {
     this.config = { ...config };
     this.transitions = this.buildTransitionsMap(config.transitions);
     this.entryActions = this.buildActionsMap(config.entryActions);
     this.exitActions = this.buildActionsMap(config.exitActions);
+    this.middlewareManager =
+      middlewareManager || new MiddlewareManager<TContext, TState>();
   }
 
   public canTransition(
@@ -101,7 +110,7 @@ export class StateMachineDefinition<
     currentState: TState,
     event: TEvent,
     context: TContext
-  ): TransitionResult<TState> {
+  ): TransitionResult<TState, TContext> {
     const { result } = PerformanceMonitor.measureSync(() => {
       return this.executeTransitionSync(currentState, event, context);
     });
@@ -113,7 +122,7 @@ export class StateMachineDefinition<
     currentState: TState,
     event: TEvent,
     context: TContext
-  ): Promise<AsyncTransitionResult<TState>> {
+  ): Promise<AsyncTransitionResult<TState, TContext>> {
     const transactionId = IdGenerator.generateTransitionId();
 
     const { result } = await PerformanceMonitor.measureAsync(async () => {
@@ -172,11 +181,46 @@ export class StateMachineDefinition<
     return { ...this.config };
   }
 
+  public addMiddleware(middleware: MiddlewareConfig<TContext, TState>): void {
+    this.middlewareManager.addMiddleware(middleware);
+  }
+
+  public removeMiddleware(name: string): void {
+    this.middlewareManager.removeMiddleware(name);
+  }
+
+  public hasMiddleware(name: string): boolean {
+    return this.middlewareManager.hasMiddleware(name);
+  }
+
+  public getMiddleware(
+    name: string
+  ): MiddlewareConfig<TContext, TState> | undefined {
+    return this.middlewareManager.getMiddleware(name);
+  }
+
+  public getPipelineOrder(): string[] {
+    return this.middlewareManager.getPipelineOrder();
+  }
+
+  public clearPipeline(): void {
+    this.middlewareManager.clearPipeline();
+  }
+
+  // Legacy methods for backward compatibility
+  public getChainOrder(): string[] {
+    return this.middlewareManager.getChainOrder();
+  }
+
+  public clearChain(): void {
+    this.middlewareManager.clearChain();
+  }
+
   private executeTransitionSync(
     currentState: TState,
     event: TEvent,
     context: TContext
-  ): TransitionResult<TState> {
+  ): TransitionResult<TState, TContext> {
     const transition = this.getTransition(currentState, event);
 
     if (!transition) {
@@ -192,7 +236,7 @@ export class StateMachineDefinition<
     }
 
     try {
-      // Check guard (sync only)
+      // Check guard (sync only - middleware not supported in sync mode)
       if (transition.guard) {
         try {
           const guardResult = transition.guard(context);
@@ -263,7 +307,7 @@ export class StateMachineDefinition<
     event: TEvent,
     context: TContext,
     transactionId: string
-  ): Promise<AsyncTransitionResult<TState>> {
+  ): Promise<AsyncTransitionResult<TState, TContext>> {
     const transition = this.getTransition(currentState, event);
 
     if (!transition) {
@@ -281,30 +325,45 @@ export class StateMachineDefinition<
     let rollbackExecuted = false;
 
     try {
-      // Check guard (async supported)
-      if (transition.guard) {
-        const guardResult = await transition.guard(context);
-        if (!guardResult) {
-          throw new GuardConditionError(
-            String(currentState),
-            String(transition.to),
-            String(event)
-          );
-        }
+      // Check guard with middleware pipeline (async supported)
+      const guardResult = await this.middlewareManager.executeGuardPipeline(
+        context,
+        transition.guard
+      );
+      if (!guardResult) {
+        throw new GuardConditionError(
+          String(currentState),
+          String(transition.to),
+          String(event)
+        );
       }
 
-      // Execute exit actions
-      await this.executeExitActionsAsync(currentState, context);
+      // Execute exit actions with middleware pipeline
+      const exitResult = await this.middlewareManager.executeExitPipeline(
+        context,
+        currentState,
+        this.getStateExitAction(currentState)
+      );
+      let currentContext = exitResult.context;
 
-      // Execute transaction or action
+      // Execute transaction or action with middleware pipeline
       if (transition.transaction) {
-        await transition.transaction(context);
+        await transition.transaction(currentContext);
       } else if (transition.action) {
-        await transition.action(context);
+        const actionResult = await this.middlewareManager.executeActionPipeline(
+          currentContext,
+          transition.action
+        );
+        currentContext = actionResult.context;
       }
 
-      // Execute entry actions
-      await this.executeEntryActionsAsync(transition.to, context);
+      // Execute entry actions with middleware pipeline
+      const entryResult = await this.middlewareManager.executeEntryPipeline(
+        currentContext,
+        transition.to,
+        this.getStateEntryAction(transition.to)
+      );
+      currentContext = entryResult.context;
 
       logger.info('Async transition completed', {
         from: String(currentState),
@@ -316,6 +375,7 @@ export class StateMachineDefinition<
       return {
         success: true,
         newState: transition.to,
+        context: currentContext,
       };
     } catch (error) {
       logger.error('Async transition failed', {
@@ -381,34 +441,6 @@ export class StateMachineDefinition<
     });
   }
 
-  private async executeEntryActionsAsync(
-    state: TState,
-    context: TContext
-  ): Promise<void> {
-    const actions = this.entryActions.get(state) || [];
-    for (const stateAction of actions) {
-      try {
-        await stateAction.action(context);
-      } catch (error) {
-        throw new ActionExecutionError('entry', String(state), error as Error);
-      }
-    }
-  }
-
-  private async executeExitActionsAsync(
-    state: TState,
-    context: TContext
-  ): Promise<void> {
-    const actions = this.exitActions.get(state) || [];
-    for (const stateAction of actions) {
-      try {
-        await stateAction.action(context);
-      } catch (error) {
-        throw new ActionExecutionError('exit', String(state), error as Error);
-      }
-    }
-  }
-
   private getTransition(
     from: TState,
     event: TEvent
@@ -441,5 +473,37 @@ export class StateMachineDefinition<
     });
 
     return map;
+  }
+
+  private getStateEntryAction(
+    state: TState
+  ): ActionFunction<TContext> | undefined {
+    const actions = this.entryActions.get(state);
+    if (!actions || actions.length === 0) {
+      return undefined;
+    }
+
+    // Combine multiple actions into one
+    return async (context: TContext) => {
+      for (const stateAction of actions) {
+        await stateAction.action(context);
+      }
+    };
+  }
+
+  private getStateExitAction(
+    state: TState
+  ): ActionFunction<TContext> | undefined {
+    const actions = this.exitActions.get(state);
+    if (!actions || actions.length === 0) {
+      return undefined;
+    }
+
+    // Combine multiple actions into one
+    return async (context: TContext) => {
+      for (const stateAction of actions) {
+        await stateAction.action(context);
+      }
+    };
   }
 }

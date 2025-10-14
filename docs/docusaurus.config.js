@@ -9,7 +9,7 @@ const darkCodeTheme = require('prism-react-renderer').themes.dracula;
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: '@jewel998/state-machine',
+  title: 'State Machine',
   tagline:
     'A lightweight, type-safe state machine library for JavaScript/TypeScript',
   favicon: 'img/favicon.ico',
@@ -27,7 +27,6 @@ const config = {
   trailingSlash: false,
 
   onBrokenLinks: 'throw',
-  onBrokenMarkdownLinks: 'warn',
 
   // Even if you don't use internationalization, you can use this field to set
   // useful metadata like html lang. For example, if your site is Chinese, you
@@ -35,6 +34,15 @@ const config = {
   i18n: {
     defaultLocale: 'en',
     locales: ['en'],
+  },
+
+  themes: ['@docusaurus/theme-live-codeblock', '@docusaurus/theme-mermaid'],
+
+  markdown: {
+    mermaid: true,
+    hooks: {
+      onBrokenMarkdownLinks: 'warn',
+    },
   },
 
   presets: [
@@ -47,11 +55,20 @@ const config = {
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl: 'https://github.com/jewel998/state-machine/tree/main/docs/',
-          routeBasePath: '/', // Serve docs at site root
+          routeBasePath: '/docs', // Serve docs at /docs
+          remarkPlugins: [],
+          rehypePlugins: [],
         },
         blog: false, // Disable blog
+        pages: {
+          path: 'src/pages',
+          routeBasePath: '/',
+        },
         theme: {
           customCss: './src/css/custom.css',
+        },
+        googleTagManager: {
+          containerId: 'GTM-TZNKS634',
         },
       }),
     ],
@@ -61,34 +78,53 @@ const config = {
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
       // Replace with your project's social card
-      image: 'img/docusaurus-social-card.jpg',
+      image: 'img/logo.png',
+      colorMode: {
+        defaultMode: 'light',
+        disableSwitch: false,
+        respectPrefersColorScheme: false,
+      },
       navbar: {
-        title: '@jewel998/state-machine',
+        title: 'State Machine',
         logo: {
           alt: 'State Machine Logo',
-          src: 'img/logo.svg',
+          src: 'img/logo.png',
         },
+        style: 'primary',
+        hideOnScroll: false,
         items: [
+          {
+            to: '/',
+            label: 'Home',
+            position: 'left',
+            activeBaseRegex: '^/$',
+          },
           {
             type: 'docSidebar',
             sidebarId: 'tutorialSidebar',
             position: 'left',
-            label: 'Docs',
+            label: 'Documentation',
           },
           {
-            to: '/api',
+            to: '/docs/api',
             label: 'API Reference',
             position: 'left',
           },
           {
-            href: 'https://github.com/jewel998/state-machine',
-            label: 'GitHub',
+            type: 'search',
             position: 'right',
           },
           {
-            href: 'https://www.npmjs.com/package/@jewel998/state-machine',
-            label: 'npm',
+            href: 'https://github.com/jewel998/state-machine',
             position: 'right',
+            className: 'header-github-link',
+            'aria-label': 'GitHub repository',
+          },
+          {
+            href: 'https://www.npmjs.com/package/@jewel998/state-machine',
+            position: 'right',
+            className: 'header-npm-link',
+            'aria-label': 'npm package',
           },
         ],
       },
@@ -104,7 +140,7 @@ const config = {
               },
               {
                 label: 'API Reference',
-                to: '/api',
+                to: '/docs/api',
               },
             ],
           },
@@ -140,27 +176,40 @@ const config = {
       prism: {
         theme: lightCodeTheme,
         darkTheme: darkCodeTheme,
-        additionalLanguages: ['bash', 'json'],
+        additionalLanguages: [
+          'bash',
+          'json',
+          'jsx',
+          'tsx',
+          'typescript',
+          'javascript',
+        ],
+      },
+      mermaid: {
+        theme: { light: 'neutral', dark: 'dark' },
+        options: {
+          maxTextSize: 50000,
+        },
       },
       algolia: {
         // The application ID provided by Algolia
-        appId: 'YOUR_APP_ID',
+        appId: 'T1JNYEGY93',
         // Public API key: it is safe to commit it
-        apiKey: 'YOUR_SEARCH_API_KEY',
-        indexName: 'YOUR_INDEX_NAME',
+        apiKey: '0efcd2574db70e492cb6288232206360',
+        indexName: 'state-machine-prod',
         // Optional: see doc section below
         contextualSearch: true,
         // Optional: Specify domains where the navigation should occur through window.location instead on history.push
-        externalUrlRegex: 'external\\.com|domain\\.com',
+        // externalUrlRegex: 'jewel998\\.github\\.io',
         // Optional: Replace parts of the item URLs from Algolia. Useful when using the same search index for multiple deployments using a different baseUrl
-        replaceSearchResultPathname: {
-          from: '/docs/', // or as RegExp: /\/docs\//
-          to: '/',
-        },
+        // replaceSearchResultPathname: {
+        //   from: '/docs/', // or as RegExp: /\/docs\//
+        //   to: '/',
+        // },
         // Optional: Algolia search parameters
         searchParameters: {},
         // Optional: path for search page that enabled by default (`false` to disable it)
-        searchPagePath: 'search',
+        searchPagePath: false,
       },
     }),
 };

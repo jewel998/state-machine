@@ -1,58 +1,164 @@
 ---
+title: Guards and Actions
+description:
+  Master guards and actions in state machines for conditional transitions and side effects. Learn
+  synchronous/asynchronous patterns, error handling, context manipulation, and real-world examples
+  for validation and business logic.
+keywords:
+  [
+    state machine guards,
+    actions,
+    conditional transitions,
+    side effects,
+    validation,
+    business logic,
+    async guards,
+    context manipulation,
+    error handling,
+    state machine logic,
+  ]
 sidebar_position: 2
 ---
 
 # Guards and Actions
 
-Guards and actions are powerful features that add conditional logic and side effects to your state
-machines. They allow you to create sophisticated behavior while maintaining the predictable nature
-of state machines.
+Guards and actions are the core mechanisms that add business logic and side effects to your state
+machines. This comprehensive guide covers their purpose, implementation patterns, and best
+practices.
 
-## Guards
+## What Are Guards and Actions?
 
-**Guards** are boolean conditions that determine whether a transition can occur. They act as
-gatekeepers, only allowing transitions when specific conditions are met.
+### Guards
+
+**Guards** are boolean conditions that control whether a transition can occur. They serve as
+gatekeepers, ensuring transitions only happen when specific business rules are met.
+
+**Purpose:**
+
+- Enforce business rules and constraints
+- Validate context data before transitions
+- Implement conditional logic
+- Prevent invalid state changes
+- Control access and permissions
+
+### Actions
+
+**Actions** are side effects that execute during state transitions or when entering/exiting states.
+They perform the actual work of your application.
+
+**Purpose:**
+
+- Execute business logic
+- Update context data
+- Trigger external services
+- Log events and audit trails
+- Perform cleanup operations
+- Send notifications
+
+## Guards in Detail
 
 ### Basic Guard Usage
 
-```javascript
-const machine = StateMachine.builder()
+Guards are functions that receive the current context and return a boolean value:
+
+```typescript showLineNumbers
+interface LoginContext {
+  username?: string;
+  password?: string;
+  attempts: number;
+  isLocked: boolean;
+}
+
+const authMachine = StateMachine.definitionBuilder<LoginContext, AuthState, AuthEvent>()
   .initialState('LOGGED_OUT')
   .state('LOGGED_OUT')
   .state('LOGGED_IN')
 
   .transition('LOGGED_OUT', 'LOGGED_IN', 'login')
-  .guard((context) => context.username && context.password)
+  .guard((context) => {
+    // Multiple validation conditions
+    return context.username && context.password && context.attempts < 3 && !context.isLocked;
+  })
 
-  .build();
+  .buildDefinition();
 
 // Usage
-const context = { username: 'john', password: 'secret123' };
-machine.start();
+const context: LoginContext = {
+  username: 'john',
+  password: 'secret123',
+  attempts: 0,
+  isLocked: false,
+};
 
-// This will succeed because guard condition is met
-const success = machine.sendEvent('login', context);
-console.log(success); // true
-console.log(machine.getCurrentState()); // 'LOGGED_IN'
+// This will succeed because all guard conditions are met
+const result = authMachine.processEvent('LOGGED_OUT', 'login', context);
+console.log(result.success); // true
+console.log(result.newState); // 'LOGGED_IN'
 ```
 
-### Multiple Guards
+### Guard Types and Patterns
+
+#### Simple Boolean Guards
+
+```typescript showLineNumbers
+// Permission check
+.guard((context) => context.user.role === 'admin')
+
+// Data validation
+.guard((context) => context.amount > 0 && context.amount <= 10000)
+
+// State validation
+.guard((context) => context.inventory.available >= context.quantity)
+```
+
+#### Multiple Guards (AND Logic)
 
 You can add multiple guards to the same transition. All guards must return `true` for the transition
-to occur (AND logic):
+to occur:
 
-```javascript
-.transition('IDLE', 'PROCESSING', 'start')
-.guard((context) => context.hasPermission)
-.guard((context) => context.isValid)
-.guard((context) => context.attempts < 3)
+```typescript showLineNumbers
+.transition('CART', 'CHECKOUT', 'proceed')
+.guard((context) => context.items.length > 0)           // Has items
+.guard((context) => context.user.isAuthenticated)       // User logged in
+.guard((context) => context.shippingAddress != null)    // Has shipping address
+.guard((context) => context.paymentMethod != null)      // Has payment method
+```
+
+#### Complex Business Logic Guards
+
+```typescript showLineNumbers
+.transition('ORDER_PENDING', 'ORDER_APPROVED', 'approve')
+.guard((context) => {
+  // Complex approval logic
+  const { order, user, businessRules } = context;
+
+  // Check user permissions
+  if (!user.permissions.includes('approve_orders')) {
+    return false;
+  }
+
+  // Check order amount limits
+  const userLimit = businessRules.approvalLimits[user.role] || 0;
+  if (order.total > userLimit) {
+    return false;
+  }
+
+  // Check business hours
+  const now = new Date();
+  const isBusinessHours = now.getHours() >= 9 && now.getHours() <= 17;
+  if (order.requiresBusinessHours && !isBusinessHours) {
+    return false;
+  }
+
+  return true;
+})
 ```
 
 ### Guard with Complex Logic
 
 Guards can contain complex business logic:
 
-```javascript
+```javascript showLineNumbers
 .transition('CART', 'CHECKOUT', 'proceed')
 .guard((context) => {
   // Multiple conditions
@@ -69,7 +175,7 @@ Guards can contain complex business logic:
 
 When guards fail, you can handle it gracefully:
 
-```javascript
+```javascript showLineNumbers
 // Method 1: Check before sending event
 if (machine.canTransition('login', context)) {
   machine.sendEvent('login', context);
@@ -102,7 +208,7 @@ They allow you to perform operations like logging, API calls, or updating contex
 
 Execute code during a transition:
 
-```javascript
+```javascript showLineNumbers
 .transition('IDLE', 'LOADING', 'start')
 .action((context) => {
   console.log('Starting operation...');
@@ -115,7 +221,7 @@ Execute code during a transition:
 
 Execute code when entering a state:
 
-```javascript
+```javascript showLineNumbers
 .onStateEntry('LOADING', (context) => {
   console.log('Entered loading state');
   context.loadingSpinner = true;
@@ -127,7 +233,7 @@ Execute code when entering a state:
 
 Execute code when leaving a state:
 
-```javascript
+```javascript showLineNumbers
 .onStateExit('LOADING', (context) => {
   console.log('Exiting loading state');
   context.loadingSpinner = false;
@@ -140,7 +246,7 @@ Execute code when leaving a state:
 
 Add multiple actions to the same transition or state:
 
-```javascript
+```javascript showLineNumbers
 .transition('PROCESSING', 'COMPLETE', 'finish')
 .action((context) => console.log('Processing complete'))
 .action((context) => context.endTime = Date.now())
@@ -154,7 +260,7 @@ Add multiple actions to the same transition or state:
 
 Actions can contain conditional logic:
 
-```javascript
+```javascript showLineNumbers
 .transition('LOADING', 'SUCCESS', 'complete')
 .action((context) => {
   if (context.shouldLog) {
@@ -174,7 +280,7 @@ Actions can contain conditional logic:
 
 Actions can be asynchronous, but the state machine doesn't wait for them:
 
-```javascript
+```javascript showLineNumbers
 .transition('IDLE', 'PROCESSING', 'start')
 .action(async (context) => {
   // Fire and forget - state machine continues immediately
@@ -201,7 +307,7 @@ Actions can be asynchronous, but the state machine doesn't wait for them:
 
 Handle errors in actions gracefully:
 
-```javascript
+```javascript showLineNumbers
 .transition('PROCESSING', 'COMPLETE', 'finish')
 .action((context) => {
   try {
@@ -228,7 +334,7 @@ try {
 
 ### User Authentication Flow
 
-```javascript
+```javascript showLineNumbers
 const authMachine = StateMachine.builder()
   .initialState('LOGGED_OUT')
   .state('LOGGED_OUT')
@@ -283,7 +389,7 @@ const authMachine = StateMachine.builder()
 
 ### E-commerce Order Processing
 
-```javascript
+```javascript showLineNumbers
 const orderMachine = StateMachine.builder()
   .initialState('CART')
   .state('CART')
@@ -360,7 +466,7 @@ const orderMachine = StateMachine.builder()
 
 ### Keep Guards Simple
 
-```javascript
+```javascript showLineNumbers
 // ✅ Good - simple, focused guard
 .guard((context) => context.isValid)
 
@@ -376,7 +482,7 @@ const orderMachine = StateMachine.builder()
 
 ### Use Actions for Side Effects Only
 
-```javascript
+```javascript showLineNumbers
 // ✅ Good - actions for side effects
 .action((context) => {
   console.log('State changed');
@@ -395,7 +501,7 @@ const orderMachine = StateMachine.builder()
 
 ### Handle Action Errors
 
-```javascript
+```javascript showLineNumbers
 // ✅ Good - handle errors gracefully
 .action((context) => {
   try {
@@ -410,7 +516,7 @@ const orderMachine = StateMachine.builder()
 
 ### Use Context Effectively
 
-```javascript
+```javascript showLineNumbers
 // ✅ Good - context carries necessary data
 const context = {
   userId: '123',
@@ -434,4 +540,4 @@ const context = {
 ## Next Steps
 
 Continue exploring the library with the [Builder Pattern](builder-pattern) guide or check out the
-[API Reference](/api) for detailed documentation.
+[API Reference](../api) for detailed documentation.
